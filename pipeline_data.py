@@ -74,10 +74,8 @@ class PipelineData:
             print("error")
 
     #maybe i can modifiy the print of errors with a logger 
-
-
-
     """
+# nedd to update the check functions 
 
     def load_contigs(self):
         # GFA file
