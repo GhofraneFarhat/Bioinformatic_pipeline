@@ -11,5 +11,5 @@ binning:
   version: 1
   input_format: GFA
   output_format: csv
-  command: python /bin_tool/bin.py #command to run the tool 
+  command: python bin.py #command to run the tool 
   parameters: tool_parameter
