@@ -74,8 +74,10 @@ class PipelineData:
             print("error")
 
     #maybe i can modifiy the print of errors with a logger 
+
+
+
     """
-# nedd to update the check functions 
 
     def load_contigs(self):
         # GFA file
@@ -140,12 +142,22 @@ class PipelineData:
         self.bins[bin_id] = contigs #contigs is a list of contig in this bin
 
 
-    #access to contigs and bins
+    #access to contigs dict
     def get_contigs(self):
         return self.contigs
 
-    def get_bin(self, bin_id):
+    #access to the bins dict
+    def get_bins(self):
         return self.bins
+
+    #access to the list of contigs of a bin
+    def get_bin_contig(self, bin_id):
+        
+        if bin_id in self.bins:
+            return self.bins[bin_id]
+        else:
+            return None
+
 
 # pipelinedata.py
     def convert_gfa_to_fasta(self, gfa_path):
