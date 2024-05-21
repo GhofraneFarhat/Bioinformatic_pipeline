@@ -7,18 +7,16 @@ from pipeline_data import PipelineData
 with open('user.yaml', 'r') as yaml_file:
     method_configs = yaml.safe_load(yaml_file)
 
+#define the input path
+input_file = "input_pipeline.fasta"
 
+#get the work direct
+current_dir = os.getcwd() #the director of work
 
 #get the classification keys
 classification_config = method_configs['classification']#contains the name, the version, the command
-
-
-#get the work direct
-current_dir = os.getcwd() #the director of work 
-
-
+ 
 # Define the input file path and output file
-input_file = "input_pipeline.fasta"
 output_file = "res.fasta"
 
 #create the pipline instance
