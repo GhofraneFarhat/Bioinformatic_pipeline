@@ -131,3 +131,6 @@ class BinningWrapper:
                 self.pipeline_data.set_bins(bin_id, contig_list)            
 
         #we need to handle if in the conversation of the file we lose a contig cause of an error 
+
+#**************problems:
+#the converted file
