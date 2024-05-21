@@ -78,15 +78,17 @@ class BinningWrapper:
 
                 #we can add other tools or find a solution for a general format of the output
 
+
+
 # update from a csv file
     def update_pipeline_data_from_csv(self, binning_result):
         # Skip the first line
-        next(binning_result_result)
+        next(binning_result)
         
         for line in binning_result:
             contig_name, bin_id = line.strip().split(',')
 
-            contig_list = self.pipeline_data.get_bin(bin_id)
+            contig_list = self.pipeline_data.get_bin_contig(bin_id)
             if contig_list is None:
                 self.pipeline_data.set_bins(bin_id, [contig_name])
             else:
@@ -97,13 +99,15 @@ class BinningWrapper:
     #we need to handle if in the conversation of the file we lose a contig cause of an error 
 
 
+
+
  # update from a tsv file 
     def update_pipeline_data_from_tsv(self, binning_result):
         
         for line in binning_result:
             contig_name, bin_id = line.strip().split('\t')
 
-            contig_list = self.pipeline_data.get_bin(bin_id)
+            contig_list = self.pipeline_data.get_bin_contig(bin_id)
             if contig_list is None:
                 self.pipeline_data.set_bins(bin_id, [contig_name])
             else:
@@ -131,6 +135,3 @@ class BinningWrapper:
                 self.pipeline_data.set_bins(bin_id, contig_list)            
 
         #we need to handle if in the conversation of the file we lose a contig cause of an error 
-
-#**************problems:
-#the converted file
