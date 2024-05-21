@@ -10,28 +10,28 @@ with open('user.yaml', 'r') as yaml_file:
 #define the input path
 input_file = "input_pipeline.fasta"
 
+#create the pipline instance
+pipeline_data = PipelineData(input_file)
+
+#load the contigs from the input file
+pipeline_data.load_contigs()
+
 #get the work direct
 current_dir = os.getcwd() #the director of work
 
 #get the classification keys
 classification_config = method_configs['classification']#contains the name, the version, the command
  
-# Define the input file path and output file
-output_file = "res.fasta"
 
-#create the pipline instance
-pipeline_data = PipelineData(input_file)
-
-#load the contigs from the input file
-pipeline_data.load_contigs()
-#there is an error when running if the inputclass(input file) isn't in the direct
-
-
-# get the path to classification tool
-repo_path = current_dir + '\\' + classification_config.get('name')
 
 #**********************************
 #classification part:
+# Define the input file path and output file
+output_file = "res.fasta"
+#there is an error when running if the inputclass(input file) isn't in the direct
+
+# get the path to classification tool
+repo_path = current_dir + '\\' + classification_config.get('name')
 #create the classwrapper instance
 classification_wrapper = ClassificationWrapper(input_file, output_file, classification_config, repo_path, pipeline_data)
 
