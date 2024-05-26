@@ -7,9 +7,9 @@ class ClassificationWrapper:
 
 
 #initialisation
-    def __init__(self, input_file, output_file, method_config, repo_path, pipeline_data):
-        self.input_path = input_file
-        self.output_path = output_file
+    def __init__(self, output_file, method_config, repo_path, pipeline_data):
+        #self.input_path = input_file
+        self.output_classif = output_file
         self.method_configuration = method_config
         self.repo_path = repo_path
         #self.class_dir = temp_dir
@@ -20,47 +20,69 @@ class ClassificationWrapper:
 #to run the tool frol the file load.py
     def run(self):
 
-        class_format = self.method_configuration['input_format']  # class_format for the format of the input of the classification tool
-        #input_classif = self.pipeline_data.conversion(class_format) #input_classif: the path to input file
-
-        # getting the tool parameter using the yamk file
-        tool_parameters = self.method_configuration['parameters'] # the parameter of the classification tool
 
         # Run the classification tool : need to see more about the parameters
-        self.run_classification()
+        resultat_of_classification = self.run_classification()
 
         # Update the PipelineData instance with the results
-        self.update_pipeline_data()
+        self.update_pipeline_data(resultat_of_classification)
 
 
 #the function to run the classification tool
     def run_classification(self):
-    # Extract the tool_command from the method_config dictionary
+
+        """ 
+        args:
+        command line: usually python script_classification.py
+        parameters: the tool parameter
+        input_classif: the input file for the classifcation tool
+        output_classif: the output file result of running the classification tool
+
+        return: 
+        resultat the classification tool
+        """ 
+        # Extract the tool_command from the method_config dictionary
         tool_command = self.method_configuration.get("command")
-        #conv = Conversion(self.input_path)
-        #input_file = conv.conversion('fasta')
-    # Split the tool_command into a list
+
+        #extract the input format
+        class_format = self.method_configuration['input_format']  # class_format for the format of the input of the classification tool
+        
+        #extract the directory of the classification tool
+        class_tool = self.method_configuration['name']
+
+        #Formatting the input file of the pipeline 
+        self.input_classif = self.pipeline_data.conversion(class_format, class_tool) #input_classif: the path to input file
+        
+        # getting the tool parameter using the yamk file
+        tool_parameters = self.method_configuration['parameters'] # the parameter of the classification tool
+
+        # Split the tool_command into a list
         command_parts = tool_command.split()
 
-    # Construct the full command with input_file_path and output_file
-        full_command = command_parts + [(self.input_path), self.output_path]
+        # Construct the full command with input_file_path and output_file
+        full_command = command_parts + [(self.input_classif), self.output_classif]
 
-    # Change the current working directory to the repository path
+        # Change the current working directory to the repository path
         os.chdir(self.repo_path)
 
-    # Run the command using subprocess
+        # Run the command using subprocess
         subprocess.run(full_command, shell=False)
+
+        #need to return the output_classif
+        return self.output_classif
 
 
 #the function to update the pipeline instance
 
     # update the pipeline data using the classification tool
-    def update_pipeline_data(self):
+    def update_pipeline_data(self, result_of_classification_tool):
         print("let's update")
         #output_class = os.path.join(self.class_dir, 'class.fasta')
-        output_class = self.output_path
+        output_class = result_of_classification_tool
+        #output_class = 'classification.fasta'
 
         with open(output_class, 'r') as classification_result:
+            print(f"I'm using {output_class}")
             #output csv
             if self.method_configuration['output_format'] == 'csv':
                 self.update_pipeline_data_from_csv(classification_result)
@@ -113,7 +135,7 @@ class ClassificationWrapper:
             contig_name = seq_record.id
             description = seq_record.description.split()
             #print(description[1])
-            
+            #need to find how to update from fasta
             if description[1] == 'chromosome':
                 plasmid_score = 0
                 chromosome_score = 1
