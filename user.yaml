@@ -1,9 +1,9 @@
 classification:
-  name: classif_tool
+  name: classify
   version: 1
   input_format: fasta
   output_format: fasta
-  command: python classification.py 
+  command: python classify.py 
   parameters: tool_parameter
 
 binning:
