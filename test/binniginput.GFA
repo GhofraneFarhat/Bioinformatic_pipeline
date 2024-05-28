@@ -1,0 +1,14 @@
+S	contig1	1000	*	LN:i:1000	RC:i:100	FC:i:50	KC:i:20	SH:Z:abc123	UR:Z:file://path/to/contig1.fa
+S	contig2	2000	*	LN:i:2000	RC:i:200	FC:i:100	KC:i:40	SH:Z:def456	UR:Z:file://path/to/contig2.fa
+S	contig3	3000	*	LN:i:3000	RC:i:150	FC:i:75	KC:i:30	SH:Z:ghi789	UR:Z:file://path/to/contig3.fa
+S	contig4	4000	*	LN:i:4000	RC:i:300	FC:i:150	KC:i:60	SH:Z:jkl012	UR:Z:file://path/to/contig4.fa
+S	contig5	5000	*	LN:i:5000	RC:i:400	FC:i:200	KC:i:80	SH:Z:mno345	UR:Z:file://path/to/contig5.fa
+S	contig6	6000	*	LN:i:6000	RC:i:250	FC:i:125	KC:i:50	SH:Z:pqr678	UR:Z:file://path/to/contig6.fa
+S	contig6	600	*	LN:i:7000	RC:i:25	FC:i:120	KC:i:50	SH:Z:pqr612	UR:Z:file://path/to/contig7.fa
+L	contig1	+	contig7	+	100M
+L	contig2	-	contig1	+	50M
+L	contig3	+	contig4	+	150M
+L	contig4	-	contig3	+	75M
+L	contig5	+	contig6	+	200M
+L	contig6	-	contig5	+	100M
+	contig7	-	contig2	+	175M

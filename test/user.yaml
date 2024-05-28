@@ -1,0 +1,15 @@
+classification:
+  name: classify
+  version: 1
+  input_format: fasta
+  output_format: fasta
+  command: python classify.py 
+  parameters: tool_parameter
+
+binning:
+  name: bin_tool
+  version: 1
+  input_format: GFA
+  output_format: csv
+  command: python bin.py #command to run the tool 
+  parameters: tool_parameter
