@@ -1,15 +1,17 @@
 import yaml
-from classification_wrapper import ClassificationWrapper
+from .classification_wrapper import ClassificationWrapper
 import os
-from plaspipe_data import PipelineData
-from binning_wrapper import BinningWrapper
+from .plaspipe_data import PipelineData
+from .binning_wrapper import BinningWrapper
 import json
 import time
 import argparse
 
-def read_arguments():
+
+#reading the arguments from the command line
+def parse_arguments():
     # Create the argument parser
-    parser = argparse.ArgumentParser(description='Pipeline for classification and binning')
+    parser = argparse.ArgumentParser(description='Pipeline for bioinformatic tools (classification and binning tools for plasmid analysis')
 
     # Add arguments
     parser.add_argument('user_file', type=str, help='path to the yaml file that the user with provide it to the pipeline')
@@ -21,41 +23,67 @@ def read_arguments():
 
     return args
 
-def read_yaml_file(user_file):
-    # Load the YAML file
-    with open(user_file, 'r') as yaml_file:
-        method_configs = yaml.safe_load(yaml_file)
 
-    return method_configs
+#load the yaml file, from the user and need some changes
+def load_yaml(file):
+    with open(file, 'r') as yaml_file:
+        configs = yaml.safe_load(yaml_file)
+    return configs
 
-def run_classification_wrapper(classification_config, repo_path, pipeline_data, current_dir, timestamp):
-    # Define the output file
+
+#the input file of the pipeline can be fasta or gfa or both
+def get_input_file_type(file):
+    if file.endswith('.GFA'):
+        return file, ''
+    elif file.endswith('.fasta'):
+        return '', file
+
+
+#the function to run the classification wrapper
+def run_classification(config, repo_path, conv_file, input_fasta, input_gfa, timestamp):
+
+    """ run the classifcation wrapper"""
+    """ 
+    Args: 
+    config: the configuration of the classification tool
+    repo_path : the path of the classification tool folder
+    conv_file: the conversion file, the result of the conversion function
+    """
+    #the file that the output results of the classification tool will be saved, have the format of the classification_tool
     output_classification = f"classification_{timestamp}.fasta"
+    
+    #create the classwrapper instance
+    classification_wrapper = ClassificationWrapper(output_classification, config, repo_path, conv_file, input_fasta, input_gfa)
 
-    # Create the ClassificationWrapper instance
-    classification_wrapper = ClassificationWrapper(output_classification, classification_config, repo_path, pipeline_data)
+    #create the instance of plaspipe_data
+    pipeline_data = PipelineData(classification_wrapper, input_gfa, input_fasta)
 
-    # Run the classification wrapper
+    #load contigs name
+    pipeline_data.load_contigs()
+
+    #run the classification wrapper 
     classification_wrapper.run()
 
-def run_binning_wrapper(binning_config, bin_path, pipeline_data, input_gfa, timestamp):
-    # Define the output file
+    #update the plaspipe_data
+    pipeline_data.update_pipeline_data_from_classwrapper()
+
+    #return the plaspipe_data after the changement of the classification wrapper, add contigs class
+    return pipeline_data
+
+def run_binning(config, bin_path, pipeline_data, input_gfa, timestamp):
     output_path = f"result_{timestamp}.csv"
-
-    # Create the BinningWrapper instance
-    binning_wrapper = BinningWrapper(input_gfa, output_path, binning_config, bin_path, pipeline_data)
-
-    # Run the binning wrapper
+    binning_wrapper = BinningWrapper(input_gfa, output_path, config, bin_path, pipeline_data)
     binning_wrapper.run()
 
 def generate_output_file(pipeline_data, pipeline_output, current_dir):
-    # Get the result of the classification
+
     contigs = pipeline_data.get_contigs()
 
-    # Get the contigs result from the binning tool
     bins = pipeline_data.get_bins()
 
     output_file = os.path.join(current_dir, pipeline_output)
+
+
     with open(output_file, "w") as f:
         f.write("Contigs:\n")
         for contig_id, sequence in contigs.items():
@@ -68,64 +96,36 @@ def generate_output_file(pipeline_data, pipeline_output, current_dir):
     print(f"Results saved to {output_file}")
 
 def main():
-    # Read command-line arguments
-    args = read_arguments()
+    args = parse_arguments()
 
-    # Access the arguments
-    user_file = args.user_file
-    pipeline_input_file = args.pipeline_input_file
-    pipeline_output = args.pipeline_output
+    method_configs = load_yaml(args.user_file)
 
-    # Get the current working directory
+    #the pipeline input file
+    #need to figure out if the user provide two inputs (fa and gfa)
+    input_gfa, input_fasta = get_input_file_type(args.pipeline_input_file)
+
+    #get the work direct
     current_dir = os.getcwd()
 
-    # Read the YAML file
-    method_configs = read_yaml_file(user_file)
-
-    # Get the input file formats
-    input_gfa = ''
-    input_fasta = ''
-    if pipeline_input_file.endswith('.GFA'):
-        input_gfa = pipeline_input_file
-    elif pipeline_input_file.endswith('.fasta'):
-        input_fasta = pipeline_input_file
-
-    # Get the classification configuration
-    classification_config = method_configs['classification']
-
-    # Get the binning configuration
-    binning_config = method_configs['binning']
-
-    # Generate a timestamp for output files
+    #use time to generate output files
     timestamp = int(time.time())
 
-    # Create the conversion file name
+    #the conversion files of the conversion of gfa to fasta
     conv_file = f"conv_{timestamp}.fasta"
 
-    # Create the PipelineData instance
-    pipeline_data = PipelineData(input_gfa, input_fasta, conv_file)
-
-    # Check if the input format is compatible with the tools
-    if (classification_config['input_format'] == 'GFA' or binning_config['input_format'] == 'GFA') and pipeline_input_file.endswith('fasta'):
-        print("This pipeline can't handle the conversion of fasta to GFA")
+    if (method_configs['classification']['input_format'] == 'GFA' or method_configs['binning']['input_format'] == 'GFA') and (args.pipeline_input_file.endswith ('fasta')):
+        print("this pipeline can't handle the conversion of fasta to GFA")
     else:
-        # Load the contigs from the input file
-        pipeline_data.load_contigs()
 
-        # Get the path to the classification tool
-        repo_path = os.path.join(current_dir, classification_config.get('name'))
+        # get the path to classification tool
+        classification_repo_path = os.path.join(current_dir, method_configs['classification']['name'])
 
-        # Run the classification wrapper
-        run_classification_wrapper(classification_config, repo_path, pipeline_data, current_dir, timestamp)
+        pipeline_data = run_classification(method_configs['classification'], classification_repo_path, conv_file, input_fasta, input_gfa, timestamp)
 
-        # Get the path to the binning tool
-        bin_path = os.path.join(current_dir, binning_config.get('name'))
+        binning_repo_path = os.path.join(current_dir, method_configs['binning']['name'])
+        run_binning(method_configs['binning'], binning_repo_path, pipeline_data, input_gfa, timestamp)
 
-        # Run the binning wrapper
-        run_binning_wrapper(binning_config, bin_path, pipeline_data, input_gfa, timestamp)
-
-        # Generate the output file
-        generate_output_file(pipeline_data, pipeline_output, current_dir)
+        generate_output_file(pipeline_data, args.pipeline_output, current_dir)
 
 if __name__ == "__main__":
     main()
