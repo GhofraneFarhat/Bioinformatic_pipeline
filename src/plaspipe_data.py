@@ -3,6 +3,7 @@ import gzip
 import logging
 import sys
 import os
+import csv
 
 import shutil
 from collections import defaultdict
@@ -130,11 +131,12 @@ class PipelineData:
 
 
         with open(output_class_pipeline, 'r') as classification_result:
+            reader = csv.reader(classification_result)
             print(f"I'm using {output_class_pipeline}")
 
 
             if output_class_pipeline.endswith ('.csv'): #we will need just the csv format 
-                self.update_plaspipe_data_from_csv(classification_result)
+                self.update_plaspipe_data_from_csv(reader)
 
 
             else:
@@ -146,14 +148,16 @@ class PipelineData:
     #need to change the update from csv to use the csv biblio
     def update_plaspipe_data_from_csv(self, classification_result):
         
-        next(classification_result)
+        next(classification_result) #Skip the header row if there is one
         for line in classification_result:
             
-            contig_name, plasmid_score, chromosome_score = line.strip().split(',')
+            contig_name, plasmid_score, chromosome_score = line
             contig_class = {
                 'plasmid_score': float(plasmid_score),
                 'chromosome_score': float(chromosome_score)
             }#dict of contigs from the classification tool
+
+
             self.set_contigs(contig_name, contig_class)
 
     #we need to handle if in the conversation of the file we lose a contig cause of an error 
