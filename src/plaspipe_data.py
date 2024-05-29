@@ -119,8 +119,8 @@ class PipelineData:
     #the pipeline for updating, will use only a standart format: csv format that contains contig_name,chromosome_score, plasmid_score
     #let's say that this file called: pipeline_file_resultat.csv
     #the function to update the pipeline instance
-    # update the pipeline data using the classification tool, classification_wrapper provide the pipeline_data with a csv file 
-    def update_pipeline_data_from_classwrapper(self): #pipeline_file_resultat
+    # update the pipeline data using the classification tool, classification_wrapper provide the plaspipe_data with a csv file 
+    def update_plaspipe_data_from_classwrapper(self): #pipeline_file_resultat
         print("let's update")
         
         #convert the tool output format to the pipeline output format
@@ -134,7 +134,7 @@ class PipelineData:
 
 
             if output_class_pipeline.endswith ('.csv'): #we will need just the csv format 
-                self.update_pipeline_data_from_csv(classification_result)
+                self.update_plaspipe_data_from_csv(classification_result)
 
 
             else:
@@ -144,7 +144,7 @@ class PipelineData:
 
     # update from a csv file
     #need to change the update from csv to use the csv biblio
-    def update_pipeline_data_from_csv(self, classification_result):
+    def update_plaspipe_data_from_csv(self, classification_result):
         
         next(classification_result)
         for line in classification_result:
@@ -230,7 +230,7 @@ classy.run()
 pip = PipelineData(classy, "binniginput.GFA", "")
 pip.load_contigs()
 contigs = pip.get_contigs()
-pip.update_pipeline_data_from_classwrapper()
+pip.update_plaspipe_data_from_classwrapper()
 
 contigss = pip.get_contigs()
 print(contigs)
