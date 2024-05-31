@@ -1,0 +1,41 @@
+## 
+
+
+## Classification Tool
+prefix: classify
+  name: classify
+  version: 2.4.1
+  command_tool: path to the script.py of the tool
+  pipeline_code: path/to/pipeline/code
+  classif_tool: path/to/the/classifcation/tool
+  requirement_tool: path to the requirement file.txt
+
+ 
+## Input Data
+input:
+  path_to_input_gfa: /data/input
+  file_pattern: '*.GFA'
+  path_to_input_gfa: /data/input
+  file_pattern: '*.fasta'
+
+## Output
+output:
+  outdir_classification: /results/classification #path to the folder of the classification tool output
+  converted_csv: path where to save the csv file #the classification wrapper convert the tool result to a pipeline format (csv format)
+  pipeline_output: path to the folder where the output of the pipeline is saved
+## Model
+conversion:
+  name: conver
+  path: /path/to/from/tool/format/conversion/pipeline/format #the conversion method selon the tool name and version
+
+## Parameters
+parameters:
+  #batch_size: 32
+  #max_length: 512
+  #num_labels: 5
+
+## Resources
+resources:
+  cpu: 8
+  memory: 16G
+  gpu: 1
