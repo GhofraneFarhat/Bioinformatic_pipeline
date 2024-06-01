@@ -51,7 +51,7 @@ def get_input_file(method_config):
 
 
 #the function to run the classification wrapper
-def run_classification(classification_folder, config, repo_path, input_fasta, input_gfa):
+def run_classification(classification_folder, config, input_fasta, input_gfa):
 
     """ run the classifcation wrapper"""
     """ 
@@ -66,7 +66,7 @@ def run_classification(classification_folder, config, repo_path, input_fasta, in
 
 
     #create the classwrapper instance
-    classification_wrapper = ClassificationWrapper(classification_folder, config, repo_path, input_fasta, input_gfa)
+    classification_wrapper = ClassificationWrapper(classification_folder, config, input_fasta, input_gfa)
 
     #create the instance of plaspipe_data
     plaspipe_data = PipelineData(classification_wrapper, input_gfa, input_fasta)
@@ -92,20 +92,20 @@ def run_binning(config, bin_path, plaspipe_data, input_gfa, timestamp):
 
 
 #the function to generate the pipeline output file of the pipeline
-def generate_output_file(plaspipe_data, pipeline_output_file, out_dir):
+def generate_output_file(pipeline_data, pipeline_output_file, out_dir):
     """ 
     this function is to generate the pipeline result saved in a file
     Args:
-    plaspipe_data: the flow of data that is updated all over the pipeline
+    pipeline_data: the flow of data that is updated all over the pipeline
     pipeline_output_file: the output file for the command line"bin_tool
     temp_dir: the path where the output file will be saved
     """
 
     #the result of the classification tool
-    contigs = plaspipe_data.get_contigs()
+    contigs = pipeline_data.get_contigs()
 
     #the result of the binning tool
-    bins = plaspipe_data.get_bins()
+    bins = pipeline_data.get_bins()
 
     #the path to the file result of the pipeline
     output_file = os.path.join(out_dir, pipeline_output_file)
@@ -148,10 +148,8 @@ def main():
         print("this pipeline can't handle the conversion of fasta to GFA")
     else:
 
-        # get the path to classification tool
-        classification_repo_path = os.path.join(current_dir, method_configs['classification']['name'])
         #the return of the run_classification function is pipeline data
-        plaspipe_data = run_classification(classification_dir, method_configs['classification'], classification_repo_path, input_fasta, input_gfa)
+        plaspipe_data = run_classification(classification_dir, method_configs['classification'], input_fasta, input_gfa)
 
         binning_repo_path = os.path.join(current_dir, method_configs['binning']['name'])
         run_binning(method_configs['binning'], binning_repo_path, plaspipe_data, input_gfa, timestamp)
