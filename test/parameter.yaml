@@ -4,7 +4,7 @@ classification:
   prefix: classi
   input_format: fasta
   output_format: fasta
-  command: python classify.py 
+  command: python C:/Users/user/Desktop/Bioinformatic_pipeline/classify/classify.py
   parameters: tool_parameter
 
   ## Input Data
