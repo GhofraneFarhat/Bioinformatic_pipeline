@@ -20,12 +20,12 @@ class ClassificationWrapper:
 
 #initialisation
 #initialisation
-    def __init__(self, classification_folder, method_config, repo_path, fasta_path="", gfa_path = "",gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+    def __init__(self, classification_folder, method_config, fasta_path="", gfa_path = "",gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
         #self.input_path = input_file
         #self.output_classif = output_of_classification
         self.classification_dir = classification_folder
         self.method_configuration = method_config
-        self.repo_path = repo_path
+        #self.repo_path = repo_path
         #self.output_file = output_conv
         self.fasta_path = fasta_path
         self.gfa_path = gfa_path
@@ -111,11 +111,6 @@ class ClassificationWrapper:
 
         # Construct the full command with input_file_path and output_file
         full_command = command_parts + [(self.input_classif_converted), output_classification]
-        
-        
-        # Change the current working directory to the repository path
-        os.chdir(self.repo_path)
-        print(f'this the repo path {self.repo_path} conversion is well done')
 
         # Run the command using subprocess
         subprocess.run(full_command, shell=False)
