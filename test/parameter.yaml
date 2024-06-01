@@ -18,7 +18,7 @@ classification:
     outdir_classification: C:/Users/user/Desktop/Bioinformatic_pipeline/out/classi_classify_1.1.1 #path to the folder of the classification tool output
     
     converted_csv: path where to save the csv file #the classification wrapper convert the tool result to a pipeline format (csv format)
-    pipeline_output: C:/Users/user/Desktop/run/out/classi_classify_1.1.1
+    pipeline_output: C:/Users/user/Desktop/Bioinformatic_pipeline/out/classi_classify_1.1.1
      
 
 binning:
