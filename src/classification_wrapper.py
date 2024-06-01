@@ -19,12 +19,14 @@ class ClassificationWrapper:
     """ 
 
 #initialisation
-    def __init__(self, output_of_classification, method_config, repo_path, output_conv = "resultat.fasta", fasta_path="", gfa_path = "",gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+#initialisation
+    def __init__(self, classification_folder, method_config, repo_path, fasta_path="", gfa_path = "",gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
         #self.input_path = input_file
-        self.output_classif = output_of_classification
+        #self.output_classif = output_of_classification
+        self.classification_dir = classification_folder
         self.method_configuration = method_config
         self.repo_path = repo_path
-        self.output_file = output_conv
+        #self.output_file = output_conv
         self.fasta_path = fasta_path
         self.gfa_path = gfa_path
 
@@ -71,7 +73,7 @@ class ClassificationWrapper:
         args:
         command line: usually python script_classification.py
         parameters: the tool parameter
-        input_classif: the input file for the classifcation tool
+        input_classif_converted: the input file for the classifcation tool
         output_classif: the output file result of running the classification tool
 
         return: 
@@ -83,33 +85,43 @@ class ClassificationWrapper:
         #extract the input format
         class_format = self.method_configuration['input_format']  # class_format for the format of the input of the classification tool
         
-        #extract the directory of the classification tool
-        class_tool = self.method_configuration['name']
-        
-        #extract the temp_dir
-        #class_dir = self.method_configuration['temp_path']
+        #extract informations about the classification tool
+        class_tool_name = self.method_configuration['name']
+        prefix = self.method_configuration['prefix']
+        version = self.method_configuration['version']
+
+        #extarct tool format of the output: need to find if i can do it without
+        output_format = self.method_configuration['output_format']
+
 
         #Formatting the input file of the pipeline 
-        self.input_classif = self.conversion(class_format, class_tool) #input_classif: the path to input file
-        print(self.input_classif)
+        self.input_classif_converted = self.conversion(class_format, class_tool_name) #input_classif_converted: the path to input file
+        print(f'here is my converted file {self.input_classif_converted}')
+        #input_classif_converted = 'C:/Users/user/Desktop/run/input/output.fasta'
 
         # getting the tool parameter using the yamk file
         tool_parameters = self.method_configuration['parameters'] # the parameter of the classification tool
+
+        #the file that the output results of the classification tool will be saved, have the format of the classification_tool
+        output_classification = os.path.join(self.classification_dir, prefix + '_' + class_tool_name + '_' + version + '.' + output_format )
+        
 
         # Split the tool_command into a list
         command_parts = tool_command.split()
 
         # Construct the full command with input_file_path and output_file
-        full_command = command_parts + [(self.input_classif), self.output_classif]
-
+        full_command = command_parts + [(self.input_classif_converted), output_classification]
+        
+        
         # Change the current working directory to the repository path
         os.chdir(self.repo_path)
+        print(f'this the repo path {self.repo_path} conversion is well done')
 
         # Run the command using subprocess
         subprocess.run(full_command, shell=False)
 
         #need to return the output_classif
-        return self.output_classif
+        return output_classification
 
 
     #convert to csv file
@@ -125,12 +137,19 @@ class ClassificationWrapper:
         pipeline_file: the standart file that we will use for the pipeline to update contigs 
 
         """ 
-        csv_file = "resultat.csv"
-        
+
+        #extract informations about the classification tool
+        class_tool_name = self.method_configuration['name']
+        prefix = self.method_configuration['prefix']
+        version = self.method_configuration['version']
+
+        #specify csv file path
+        csv_file = csv_file = os.path.join(self.classification_dir, prefix + '_' + class_tool_name + '_' + version + '.csv')
+        print(f'this is my csv file enjoy {csv_file}')
         pipeline_conv = FastaToCsv(file_path, csv_file) #path to the tool_result_file, neme of tool, version_of_tool
         pipeline_file = pipeline_conv.convert()
-        return pipeline_file
 
+        return pipeline_file
 
     #getter for the classification_wrapper
     def get_csv_file(self):
@@ -142,7 +161,6 @@ class ClassificationWrapper:
         output_pipeline_csv = self.pipeline_conversion_to_csv(self.resultat_of_classification)
         print("hey now I'm a csv file")
         return output_pipeline_csv
-
 
 
     ######################################################################
@@ -203,8 +221,6 @@ class ClassificationWrapper:
         except Exception as e:
             self.process_exception(f'Reading {self.fasta_path}: {e}')
         return self.contigs
-
- 
 
     # Conversion from GFA to fasta
     def __write_attributes(self, attributes_dict, keys_to_remove=[], sep=' '):
@@ -290,7 +306,7 @@ class ClassificationWrapper:
         except Exception as e:
             self.process_exception(f'FASTA/GFA\tWriting {in_GFA_file} to {out_FASTA_file}: {e}')
 
-    # The function that will provide the path to the wrapper
+    # The conversion function that will provide the path to the wrapper
     #the conversionn function
     def conversion(self, input_format, folder_tool):
 
@@ -313,8 +329,17 @@ class ClassificationWrapper:
         #print(self.output_file)
         print("helllllllllllllllllllllllo")
         print(self.gfa_path)
-        working_dir_output = os.path.join(os.getcwd(), self.output_file)
-        classify_dir_output = os.path.join(os.getcwd() + '\\' + folder_tool , self.output_file)
+        
+        prefix = self.method_configuration['prefix']
+        output_classif_file = os.path.join (self.classification_dir , prefix + '_converted.fasta')
+        print(f"hello i wanna be converted here {output_classif_file}")
+
+        # Create the output directory if it doesn't exist
+        os.makedirs(os.path.dirname(output_classif_file), exist_ok=True)
+        
+        #classify_dir_output = os.path.join(os.getcwd() + '\\' + folder_tool , self.output_file)
+
+        #print(f'this the dir{classify_dir_output}')
 
         sep = ' '
         if input_format == 'fasta':
@@ -323,10 +348,10 @@ class ClassificationWrapper:
             elif self.gfa_path:
                 print("wanna convert gfa with me?")
                 #problem with the the tool name 
-                self.write_GFA_to_FASTA(self.gfa_path, working_dir_output, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
-                self.write_GFA_to_FASTA(self.gfa_path, classify_dir_output, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
-                print("let's convert this gfa file")
-                return self.output_file
+                #self.write_GFA_to_FASTA(self.gfa_path, working_dir_output, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
+                self.write_GFA_to_FASTA(self.gfa_path, output_classif_file, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
+                print(f"let's convert this gfa file {output_classif_file}")
+                return output_classif_file
                 
             else:
                 raise ValueError("Neither GFA nor FASTA file provided as input.")
