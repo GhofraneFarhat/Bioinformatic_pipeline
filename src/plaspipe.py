@@ -84,9 +84,9 @@ def run_classification(classification_folder, config, input_fasta, input_gfa):
     return plaspipe_data
 
 #the function to run the binning wrapper
-def run_binning(config, bin_path, plaspipe_data, input_gfa, timestamp):
+def run_binning(config, plaspipe_data, input_gfa, timestamp):
     output_path = f"result_{timestamp}.csv"
-    binning_wrapper = BinningWrapper(input_gfa, output_path, config, bin_path, plaspipe_data)
+    binning_wrapper = BinningWrapper(input_gfa, output_path, config, plaspipe_data)
     binning_wrapper.run()
 
 
@@ -100,6 +100,12 @@ def generate_output_file(pipeline_data, pipeline_output_file, out_dir):
     pipeline_output_file: the output file for the command line"bin_tool
     temp_dir: the path where the output file will be saved
     """
+    if out_dir is None:
+        out_dir = os.getcwd()
+        print(out_dir)
+
+    # Create the directory if it doesn't exist
+    os.makedirs(out_dir, exist_ok=True)
 
     #the result of the classification tool
     contigs = pipeline_data.get_contigs()
@@ -151,8 +157,8 @@ def main():
         #the return of the run_classification function is pipeline data
         plaspipe_data = run_classification(classification_dir, method_configs['classification'], input_fasta, input_gfa)
 
-        binning_repo_path = os.path.join(current_dir, method_configs['binning']['name'])
-        run_binning(method_configs['binning'], binning_repo_path, plaspipe_data, input_gfa, timestamp)
+        #binning_repo_path = os.path.join(current_dir, method_configs['binning']['name'])
+        run_binning(method_configs['binning'], plaspipe_data, input_gfa, timestamp)
 
         #for the output of the pipeline
         out_dir = method_configs['classification']['output']['pipeline_output']

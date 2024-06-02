@@ -324,6 +324,10 @@ class ClassificationWrapper:
         #print(self.output_file)
         print("helllllllllllllllllllllllo")
         print(self.gfa_path)
+
+        # If classification_dir is None, set it to the current working directory
+        if self.classification_dir is None:
+            self.classification_dir = os.getcwd()
         
         prefix = self.method_configuration['prefix']
         output_classif_file = os.path.join (self.classification_dir , prefix + '_converted.fasta')
