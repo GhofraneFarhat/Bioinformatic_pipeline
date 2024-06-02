@@ -140,7 +140,7 @@ class PipelineData:
 
 
         with open(output_class_pipeline, 'r') as classification_result:
-            reader = csv.reader(classification_result)
+            reader = csv.DictReader(classification_result)
             print(f"I'm using {output_class_pipeline}")
 
 
@@ -162,9 +162,10 @@ class PipelineData:
 
         for line in classification_result:
             
+            contig_name = line['contig_name']
+            plasmid_score = line['plasmid_score']
+            chromosome_score = line['chromosome_score']
 
-
-            contig_name, plasmid_score, chromosome_score = line
             contig_class = {
                 'plasmid_score': float(plasmid_score),
                 'chromosome_score': float(chromosome_score)
