@@ -110,7 +110,7 @@ class ClassificationWrapper:
         command_parts = tool_command.split()
 
         # Construct the full command with input_file_path and output_file
-        full_command = command_parts + [(self.input_classif_converted), output_classification]
+        full_command = command_parts + ['-i', self.input_classif_converted, '-o', output_classification]
 
         # Run the command using subprocess
         subprocess.run(full_command, shell=False)
