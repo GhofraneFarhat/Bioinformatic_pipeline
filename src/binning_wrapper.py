@@ -7,11 +7,11 @@ class BinningWrapper:
 
 
 #initialisation
-    def __init__(self, input_file, output_file, method_config, repo_path, pipeline_data):
+    def __init__(self, input_file, output_file, method_config, pipeline_data):
         self.input_path = input_file
         self.output_path = output_file
         self.method_configuration = method_config
-        self.repo_path = repo_path
+        #self.repo_path = repo_path
         #self.bin_dir = temp_dir
         self.pipeline_data = pipeline_data
         #the path to save the output of the tool        
@@ -46,7 +46,7 @@ class BinningWrapper:
         full_command = command_parts + [(self.input_path), self.output_path]
 
     # Change the current working directory to the repository path
-        os.chdir(self.repo_path)
+        #os.chdir(self.repo_path)
 
     # Run the command using subprocess
         subprocess.run(full_command, shell=False)
