@@ -51,7 +51,7 @@ def get_input_file(method_config):
 
 
 #the function to run the classification wrapper
-def run_classification(classification_folder, config, input_fasta, input_gfa):
+def run_classification(classification_folder, config, input_fasta, input_gfa, class_name, class_version):
 
     """ run the classifcation wrapper"""
     """ 
@@ -69,7 +69,7 @@ def run_classification(classification_folder, config, input_fasta, input_gfa):
     classification_wrapper = ClassificationWrapper(classification_folder, config, input_fasta, input_gfa)
 
     #create the instance of plaspipe_data
-    plaspipe_data = PipelineData(classification_wrapper, input_gfa, input_fasta)
+    plaspipe_data = PipelineData(classification_wrapper, class_name, class_version, input_gfa, input_fasta)
 
     #load contigs name
     plaspipe_data.load_contigs()
@@ -155,7 +155,7 @@ def main():
     else:
 
         #the return of the run_classification function is pipeline data
-        plaspipe_data = run_classification(classification_dir, method_configs['classification'], input_fasta, input_gfa)
+        plaspipe_data = run_classification(classification_dir, method_configs['classification'], input_fasta, input_gfa,method_configs['classification']['name'],method_configs['classification']['version'] )
 
         #binning_repo_path = os.path.join(current_dir, method_configs['binning']['name'])
         run_binning(method_configs['binning'], plaspipe_data, input_gfa, timestamp)

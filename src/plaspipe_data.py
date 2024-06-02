@@ -21,9 +21,13 @@ class PipelineData:
     then after the classifcation wrapper it gets updated with the contigs score, after the binning wrapper 
     it get updated with the bins
     """ 
-    def __init__(self, classification_wrapper, gfa_path= "", fasta_path="", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+    def __init__(self, classification_wrapper, classification_tool_name, classification_tool_version, gfa_path= "", fasta_path="", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
      
         self.classification_wrapper = classification_wrapper
+
+        self.tool_name = classification_tool_name
+        self.tool_version = classification_tool_version
+
         self.gfa_path = gfa_path
         self.fasta_path = fasta_path
         
@@ -56,6 +60,7 @@ class PipelineData:
         Read contigs and their attributes from a GFA file
         """
         result = {}
+
         with self.__open_file_read(self.gfa_path, self.gzipped_gfa) as in_file:
             for gfa_line in [x for x in in_file.readlines() if x[0] == 'S']:
                 line = gfa_line.rstrip()
@@ -63,7 +68,8 @@ class PipelineData:
                 if len(ctg_data) < 2:
                     continue  # Skip lines with fewer than 2 fields
                 ctg_id = ctg_data[1]
-                result[self.id_fun(ctg_id)] = ''
+                result[(self.tool_name, self.tool_version)] = {self.id_fun(ctg_id): ''}
+                
         return result
 
     def read_fasta(self):
@@ -75,9 +81,12 @@ class PipelineData:
         the contigs dict fill in with contigs name
         """ 
         print("read from fasta")
+        
+
         try:
             for seq_record in SeqIO.parse(self.fasta_path, "fasta"):
-                self.contigs[seq_record.id] = ""
+                self.contigs[(self.tool_name, self.tool_version)] = {seq_record.id: ''}
+
         except Exception as e:
             self.process_exception(f'Reading {self.fasta_path}: {e}')
         return self.contigs
@@ -147,18 +156,21 @@ class PipelineData:
     # update from a csv file
     #need to change the update from csv to use the csv biblio
     def update_plaspipe_data_from_csv(self, classification_result):
-        
-        next(classification_result) #Skip the header row if there is one
+
+               
+        next(classification_result)# Skip the header row if there is one
+
         for line in classification_result:
             
+
+
             contig_name, plasmid_score, chromosome_score = line
             contig_class = {
                 'plasmid_score': float(plasmid_score),
                 'chromosome_score': float(chromosome_score)
             }#dict of contigs from the classification tool
 
-
-            self.set_contigs(contig_name, contig_class)
+            self.set_contigs(self.tool_name, self.tool_version, contig_name, contig_class)
 
     #we need to handle if in the conversation of the file we lose a contig cause of an error 
 
@@ -168,8 +180,14 @@ class PipelineData:
 
     # Setter and getter of the pipelinedata
     # Update the dict of contigs after the classification method (classification wrapper)
-    def set_contigs(self, contig_name, contig_class):
-        self.contigs[contig_name] = {
+    def set_contigs(self, tool_name, tool_version, contig_name, contig_class):
+
+        tool_key = (tool_name, tool_version)
+
+        if tool_key not in self.contigs:
+            self.contigs[tool_key] = {}
+
+        self.contigs[tool_key][contig_name] = {
             'contig_class': contig_class  # the score of the contig its a dict of plasmid score and chromosome score
         }
 
