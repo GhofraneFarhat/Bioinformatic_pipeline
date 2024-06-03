@@ -1,5 +1,6 @@
 from Bio import SeqIO
 import csv
+import argparse
 
 class FastaToCsv:
     def __init__(self, fasta_file, csv_file):
@@ -18,7 +19,7 @@ class FastaToCsv:
 
                 try:
                     description = seq_record.description.split(' ')[1][0:]
-                    print(description)
+        
                 except IndexError:
                     print(f"Warning: Unexpected format for contig '{contig_name}'")
                     continue
@@ -46,8 +47,13 @@ class FastaToCsv:
         return self.csv_file
 
 
-"""
-conv = FastaToCsv("classify/classification_1716962016.fasta", "resss1.csv")
-res = conv.convert()
-print(res)
-"""
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Convert Fasta to CSV')
+    parser.add_argument('fasta_file', type=str, help='Path to the input fasta file')
+    parser.add_argument('csv_file', type=str, help='Path to the output csv file')
+
+    args = parser.parse_args()
+
+    conversion = FastaToCsv(args.fasta_file, args.csv_file)
+    res = conversion.convert()
+    
