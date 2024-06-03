@@ -93,6 +93,11 @@ class ClassificationWrapper:
         #extarct tool format of the output: need to find if i can do it without
         output_format = self.method_configuration['output_format']
 
+        # Absolute path to the tool directory
+        tool_directory = 'C:/Users/user/Desktop/Bioinformatic_pipeline/classify'
+
+        # Change the working directory to the tool directory
+        os.chdir(tool_directory)
 
         #Formatting the input file of the pipeline 
         self.input_classif_converted = self.conversion(class_format, class_tool_name) #input_classif_converted: the path to input file
