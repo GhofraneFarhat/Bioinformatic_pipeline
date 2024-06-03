@@ -19,7 +19,11 @@ classification:
     
     converted_csv: path where to save the csv file #the classification wrapper convert the tool result to a pipeline format (csv format)
     pipeline_output: C:/Users/user/Desktop/Bioinformatic_pipeline/out/classi_classify_1.1.1
-     
+
+  conversion:
+    name: classify_conversion
+    path: C:\Users\user\Desktop\Bioinformatic_pipeline\tool_conversion\classify_conversion.py #the conversion method selon the tool name and version
+
 
 binning:
   name: bin_tool
