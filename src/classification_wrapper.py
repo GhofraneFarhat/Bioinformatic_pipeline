@@ -94,7 +94,7 @@ class ClassificationWrapper:
         output_format = self.method_configuration['output_format']
 
         # Absolute path to the tool directory
-        tool_directory = 'C:/Users/user/Desktop/Bioinformatic_pipeline/classify'
+        tool_directory = 'C:/Users/user/Desktop/Bioinformatic_pipeline/plASgraph'
 
         # Change the working directory to the tool directory
         os.chdir(tool_directory)
