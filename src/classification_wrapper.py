@@ -1,7 +1,7 @@
 import os
 import subprocess
 from Bio import SeqIO
-from tool_conversion.classify_conversion import FastaToCsv
+#from tool_conversion.classify_conversion import FastaToCsv
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import logging
@@ -137,14 +137,19 @@ class ClassificationWrapper:
         class_tool_name = self.method_configuration['name']
         prefix = self.method_configuration['prefix']
         version = self.method_configuration['version']
+        conversion_script_path = self.method_configuration['conversion']['path']
+
 
         #specify csv file path
         csv_file = csv_file = os.path.join(self.classification_dir, prefix + '_' + class_tool_name + '_' + version + '.csv')
         print(f'this is my csv file enjoy {csv_file}')
-        pipeline_conv = FastaToCsv(file_path, csv_file) #path to the tool_result_file, neme of tool, version_of_tool
-        pipeline_file = pipeline_conv.convert()
 
-        return pipeline_file
+
+        # Run the conversion script with subprocess
+        subprocess.run(["python", conversion_script_path, file_path, csv_file])#path to the tool_result_file, neme of tool, version_of_tool
+
+
+        return csv_file
 
     #getter for the classification_wrapper
     def get_csv_file(self):
