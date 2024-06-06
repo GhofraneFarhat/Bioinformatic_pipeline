@@ -44,14 +44,14 @@ def load_yaml(file):
 #the input file of the pipeline can be fasta or gfa or both
 #need to change, the inpute of the pipeline will be provided from the yaml file
 def get_input_file(method_config):
-    gfa_path = method_config['classification']['input']['path_to_input_gfa']
-    fasta_path = method_config['classification']['input']['path_to_input_fasta']
+    gfa_path = method_config['input']['path_to_input_gfa']
+    fasta_path = method_config['input']['path_to_input_fasta']
     return gfa_path, fasta_path
 
 
 
 #the function to run the classification wrapper
-def run_classification(classification_folder, config, input_fasta, input_gfa, class_name, class_version):
+def run_classification(classification_folder, prefix, config, input_fasta, input_gfa, class_name, class_version):
 
     """ run the classifcation wrapper"""
     """ 
@@ -66,7 +66,7 @@ def run_classification(classification_folder, config, input_fasta, input_gfa, cl
 
 
     #create the classwrapper instance
-    classification_wrapper = ClassificationWrapper(classification_folder, config, input_fasta, input_gfa)
+    classification_wrapper = ClassificationWrapper(classification_folder, prefix, config, input_fasta, input_gfa)
 
     #create the instance of plaspipe_data
     plaspipe_data = PipelineData(classification_wrapper, class_name, class_version, input_gfa, input_fasta)
@@ -140,7 +140,7 @@ def main():
 
     #extract the temp directory of the output different format of the classification tool
     classification_dir = method_configs['classification']['output']['outdir_classification']
-
+    prefix = method_configs['prefix']
     #get the work direct
     current_dir = os.getcwd()
     
@@ -155,13 +155,13 @@ def main():
     else:
 
         #the return of the run_classification function is pipeline data
-        plaspipe_data = run_classification(classification_dir, method_configs['classification'], input_fasta, input_gfa,method_configs['classification']['name'],method_configs['classification']['version'] )
+        plaspipe_data = run_classification(classification_dir, prefix, method_configs['classification'], input_fasta, input_gfa,method_configs['classification']['name'],method_configs['classification']['version'] )
 
         #binning_repo_path = os.path.join(current_dir, method_configs['binning']['name'])
-        run_binning(method_configs['binning'], plaspipe_data, input_gfa, timestamp)
+        #run_binning(method_configs['binning'], plaspipe_data, input_gfa, timestamp)
 
         #for the output of the pipeline
-        out_dir = method_configs['classification']['output']['pipeline_output']
+        out_dir = method_configs['outdir_pipeline']
         generate_output_file(plaspipe_data, args.pipeline_output, out_dir)
 
 if __name__ == "__main__":
