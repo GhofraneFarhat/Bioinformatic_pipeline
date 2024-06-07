@@ -6,6 +6,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import logging
 import sys
+from .tool_command import get_command
 
 
 class ClassificationWrapper:
@@ -18,7 +19,6 @@ class ClassificationWrapper:
     Returns:
     """ 
 
-#initialisation
 #initialisation
     def __init__(self, classification_folder, prefix, method_config, fasta_path="", gfa_path = "", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
         #self.input_path = input_file
@@ -116,8 +116,8 @@ class ClassificationWrapper:
         command_parts = tool_command.split()
 
         # Construct the full command with input_file_path and output_file
-        full_command = command_parts + ['-i', self.input_classif_converted, '-o', output_classification]
-
+        #full_command = command_parts + ['-i', self.input_classif_converted, '-o', output_classification]
+        full_command = get_command(self.method_configuration, self.input_classif_converted, output_classification)
         # Run the command using subprocess
         subprocess.run(full_command, shell=False)
 
