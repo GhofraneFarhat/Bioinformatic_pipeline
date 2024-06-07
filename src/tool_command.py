@@ -10,7 +10,7 @@ def get_command(method_config, input_file, output_file):
     # Extract tool_name, tool_version, script_path
     tool_name = method_config['name']
     tool_version = method_config['version']
-    script_name = method_config['command']
+    script_name = method_config['path_to_script']
     tool_parameters = method_config['parameters']
 
     # Check if the tool is supported
