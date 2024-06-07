@@ -6,6 +6,10 @@ from .binning_wrapper import BinningWrapper
 import json
 import time
 import argparse
+import gzip
+import sys
+import shutil
+import logging
 
 
 
@@ -44,9 +48,65 @@ def load_yaml(file):
 #the input file of the pipeline can be fasta or gfa or both
 #need to change, the inpute of the pipeline will be provided from the yaml file
 def get_input_file(method_config):
+
+    gun_gfa_path = os.path.join(method_config['outdir_pipeline'], "gunzipped_gfa.gfa") 
+    gun_fasta_path = os.path.join(method_config['outdir_pipeline'], "gunzipped_fasta.fasta")  
+
     gfa_path = method_config['input']['path_to_input_gfa']
     fasta_path = method_config['input']['path_to_input_fasta']
+
+    if gfa_path and gfa_path.endswith('.gz'):
+        gfa_path = gunzip_GFA(gfa_path, gun_gfa_path)
+        
+            
+    if fasta_path and fasta_path.endswith('.gz'):
+        fasta_path = gunzip_FASTA(fasta_path, gun_fasta_path)
+
     return gfa_path, fasta_path
+
+#gunzzipping a gfa file
+def gunzip_GFA(in_file_path, out_file_path):
+    """
+    Gunzip a GFA file
+
+    Args:
+       in_file_path (str): path to input gzipped GFA file
+       out_file_path (str): path to output GFA file
+
+    Returns:
+       Creates GFA file out_file_path
+    """
+    try:
+        with gzip.open(in_file_path) as in_file, open(out_file_path, 'wb') as out_file:
+            shutil.copyfileobj(in_file, out_file)
+            return out_file_path
+    except Exception as e:
+        process_exception(f'FASTA\tGunzipping {in_file_path} to {out_file_path}: {e}')
+
+#gunzip a fasta file
+def gunzip_FASTA(in_file_path, out_file_path):
+    """
+    Gunzip a FASTA file
+
+    Args:
+       in_file_path (str): path to input gzipped FASTA file
+       out_file_path (str): path to output FASTA file
+
+    Returns:
+       Creates FASTA file out_file_path
+    """
+    records = []
+    with gzip.open(in_file_path, 'rt') as handle:
+        for record in SeqIO.parse(handle, 'fasta'):
+            records.append(record)
+        with open(out_file_path, 'w') as out_file:
+            SeqIO.write(records, out_file, 'fasta')
+
+def process_exception(msg):
+    logging.exception(msg)
+    print(f'EXCEPTION\t{msg}', file=sys.stderr)
+    sys.exit(1)
+
 
 
 

@@ -1,0 +1,6 @@
+[submodule "plASgraph2"]
+	path = plASgraph2
+	url = https://github.com/cchauve/plASgraph2.git
+[submodule "plASgraph"]
+	path = plASgraph
+	url = https://github.com/cchauve/plASgraph.git
