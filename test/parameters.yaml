@@ -1,27 +1,25 @@
+  ## Input Data
+input:
+  path_to_input_gfa: C:\Users\user\Desktop\Bioinformatic_pipeline\c_freundii_assembly.gfa
+  path_to_input_fasta: #C:/Users/user/Desktop/run/input/output.fasta
+
+outdir_pipeline: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plas_plASgraph_1.0.0
+prefix: plas
+
 classification:
   name: plASgraph
   version: 1.0.0
-  prefix: plas
+  
   input_format: gfa
   output_format: csv
-  command: python C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph\plASgraph.py
+  path_to_script: C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph\plASgraph.py
   parameters: tool_parameter
 
-  ## Input Data
-  input:
-    path_to_input_gfa: C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph\example_data\c_freundii_assembly.gfa
-    file_pattern: '*.gfa'
-    path_to_input_fasta: #C:/Users/user/Desktop/run/input/output.fasta
 
   ## Output
   output:
     outdir_classification: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plas_plASgraph_1.0.0 #path to the folder of the classification tool output
-    converted_csv: same path as the classification_result #the classification wrapper convert the tool result to a pipeline format (csv format)
-    pipeline_output: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plas_plASgraph_1.0.0
-     
-  conversion:
-    name: plasgraph_conversion
-    path: C:\Users\user\Desktop\Bioinformatic_pipeline\tool_conversion\plasgraph_conversion.py #the conversion method selon the tool name and version
+
 
 binning:
   name: bin_tool
