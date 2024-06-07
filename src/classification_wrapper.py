@@ -7,6 +7,7 @@ from Bio.SeqRecord import SeqRecord
 import logging
 import sys
 from .tool_command import get_command
+from .tool_conversion import run_conversion
 
 
 class ClassificationWrapper:
@@ -80,8 +81,7 @@ class ClassificationWrapper:
         return: 
         resultat the classification tool
         """ 
-        # Extract the tool_command from the method_config dictionary
-        tool_command = self.method_configuration.get("command")
+
 
         #extract the input format
         class_format = self.method_configuration['input_format']  # class_format for the format of the input of the classification tool
@@ -112,8 +112,6 @@ class ClassificationWrapper:
         output_classification = os.path.join(self.classification_dir, self.prefix + '_' + class_tool_name + '_' + version + '.' + output_format )
         
 
-        # Split the tool_command into a list
-        command_parts = tool_command.split()
 
         # Construct the full command with input_file_path and output_file
         #full_command = command_parts + ['-i', self.input_classif_converted, '-o', output_classification]
@@ -152,8 +150,8 @@ class ClassificationWrapper:
 
 
         # Run the conversion script with subprocess
-        subprocess.run(["python", conversion_script_path, file_path, csv_file])#path to the tool_result_file, neme of tool, version_of_tool
-
+        #subprocess.run(["python", conversion_script_path, file_path, csv_file])#path to the tool_result_file, neme of tool, version_of_tool
+        run_conversion(class_tool_name, version, file_path, csv_file)
 
         return csv_file
 
