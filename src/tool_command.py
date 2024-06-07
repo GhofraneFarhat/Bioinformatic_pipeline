@@ -2,7 +2,7 @@ def get_command(method_config, input_file, output_file):
     # Define command templates for each tool
     command_tool = {
         'plASgraph': 'python {script} -i {input_file} -o {output_file}',
-        'plagraph2': 'python {script} --input {input_file} --output {output_file}',
+        'plASgraph2': 'python {script} gfa {input_file} {parameter} {output_file}',
         'platon': 'platon {input_file} {output_file}',
         'classify': 'python {script} -i {input_file} -o {output_file}'
     }
@@ -21,7 +21,7 @@ def get_command(method_config, input_file, output_file):
     command_template = command_tool[tool_name]
 
     # Format the command with the provided parameters
-    command = command_template.format(script=script_name, input_file=input_file, output_file=output_file)
+    command = command_template.format(script=script_name, input_file=input_file, parameter = tool_parameters, output_file=output_file)
 
     # Add additional parameters if provided
 

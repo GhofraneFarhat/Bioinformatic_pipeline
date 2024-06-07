@@ -8,6 +8,11 @@ def get_conversion_class(tool_name, tool_version):
     elif tool_name == 'plASgraph':
         from tool_conversion.plasgraph_conversion import CsvToCsv
         return CsvToCsv
+
+    elif tool_name == 'plASgraph2':
+        from tool_conversion.plasgraph_conversion import CsvToCsv
+        return CsvToCsv
+
     else:
         raise ValueError(f"Unsupported tool: {tool_name}")
 
