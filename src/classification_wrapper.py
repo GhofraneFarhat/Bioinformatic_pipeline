@@ -169,11 +169,6 @@ class ClassificationWrapper:
     ######################################################################
     ######################################################################
     #conversion from GFA to fasta
-    def process_exception(self, msg):
-        logging.exception(msg)
-        print(f'EXCEPTION\t{msg}', file=sys.stderr)
-        sys.exit(1)
-
     
 
     # The conversion function that will provide the path to the wrapper
@@ -223,7 +218,7 @@ class ClassificationWrapper:
                 print("wanna convert gfa with me?")
                 #problem with the the tool name 
                 #self.write_GFA_to_FASTA(self.gfa_path, working_dir_output, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
-                self.write_GFA_to_FASTA(self.gfa_path, output_classif_file, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
+                write_GFA_to_FASTA(self.gfa_path, output_classif_file, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
                 print(f"let's convert this gfa file {output_classif_file}")
                 return output_classif_file
                 
