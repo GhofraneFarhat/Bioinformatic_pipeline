@@ -24,7 +24,7 @@ class BinningWrapper:
     def __init__(self, binning_folder, prefix, binning_config, fasta_path="", gfa_path = "", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
         #self.input_path = input_file
         #self.output_classif = output_of_classification
-        self.classification_dir = binning_folder
+        self.binning_dir = binning_folder
         self.prefix = prefix
         self.method_configuration = binning_config
         #self.repo_path = repo_path
@@ -104,7 +104,7 @@ class BinningWrapper:
 
         #Formatting the input file of the pipeline 
         self.input_bin_converted = self.conversion(bin_format, bin_tool_name) #the path to input file
-        print(f'here is my converted file {self.input_bin_converted}')
+        print(f'here is my converted file for the binning tool {self.input_bin_converted}')
         
 
         # getting the tool parameter using the yaml file
@@ -117,10 +117,13 @@ class BinningWrapper:
 
         # Construct the full command with input_file_path and output_file
         full_command = get_command(self.method_configuration, self.input_bin_converted, output_binning)
+        print(f'this is my command for the binning tool {full_command}')
+
         # Run the command using subprocess
         subprocess.run(full_command, shell=False)
 
         #need to return the output_classif
+        print(f'this my binning tool result {output_binning}')
         return output_binning
 
 
@@ -151,12 +154,12 @@ class BinningWrapper:
 
 
         # Run the conversion script with run conversion
-        run_conversion(class_tool_name, version, file_path, csv_file)
+        run_conversion(bin_tool_name, version, file_path, csv_file)
 
         return csv_file
 
     #getter for the classification_wrapper
-    def get_csv_file(self):
+    def get_csv_file_from_binning(self):
         
         """ 
         returns: the csv file for the pipeline

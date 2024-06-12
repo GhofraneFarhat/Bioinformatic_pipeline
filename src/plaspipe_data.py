@@ -12,6 +12,9 @@ from collections import defaultdict
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
+from .classification_wrapper import ClassificationWrapper
+from .binning_wrapper import BinningWrapper
+
 #from classification_wrapper import ClassificationWrapper
 
 class PipelineData:
@@ -21,7 +24,7 @@ class PipelineData:
     then after the classifcation wrapper it gets updated with the contigs score, after the binning wrapper 
     it get updated with the bins
     """ 
-    def __init__(self, classification_wrapper,binning_wrapper, classification_tool_name, classification_tool_version, gfa_path= "", fasta_path="", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+    def __init__(self, classification_wrapper = '', binning_wrapper = "", classification_tool_name = 'classify', classification_tool_version = '1.0.0', gfa_path= "", fasta_path="", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
      
         self.classification_wrapper = classification_wrapper
         self.binning_wrapper = binning_wrapper
@@ -134,6 +137,7 @@ class PipelineData:
     def update_plaspipe_data_from_classwrapper(self): #pipeline_file_resultat
         print("let's update")
         
+        #classification_wrapper = ClassificationWrapper()
         #convert the tool output format to the pipeline output format
         output_class_pipeline = self.classification_wrapper.get_csv_file()
         print("let's use a csv file")
@@ -156,7 +160,7 @@ class PipelineData:
         print("let's update")
         
         #convert the tool output format to the pipeline output format
-        output_bin_pipeline = self.binning_wrapper.get_csv_file()
+        output_bin_pipeline = self.binning_wrapper.get_csv_file_from_binning()
         print("let's use a csv file")
         print(output_bin_pipeline)
 
@@ -195,23 +199,23 @@ class PipelineData:
 
             self.set_contigs(self.tool_name, self.tool_version, contig_name, contig_class)
 
-    def update_plaspipe_data_from_class_bin_csv(self, binning_result):
+    def update_plaspipe_data_from_bin_csv(self, binning_result):
 
         # Skip the first line
         next(binning_result)
         
         for line in binning_result:
 
-            contig_name = line['contig_name']
-            bin_id = line['bin_id']
+            contig_name = line['Contig']
+            bin_id = line['Bin']
 
 
-            contig_list = self.pipeline_data.get_bin_contig(bin_id)
+            contig_list = self.get_bin_contig(bin_id)
             if contig_list is None:
-                self.pipeline_data.set_bins(bin_id, [contig_name])
+                self.set_bins(bin_id, [contig_name])
             else:
                 contig_list.append(contig_name)
-                self.pipeline_data.set_bins(bin_id, contig_list)
+                self.set_bins(bin_id, contig_list)
 
     #we need to handle if in the conversation of the file we lose a contig cause of an error 
 
