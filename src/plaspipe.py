@@ -133,26 +133,39 @@ def run_classification(classification_folder, prefix, config, input_fasta, input
     #create the classwrapper instance
     classification_wrapper = ClassificationWrapper(classification_folder, prefix, config, input_fasta, input_gfa)
 
-    #create the instance of plaspipe_data
-    plaspipe_data = PipelineData(classification_wrapper, class_name, class_version, input_gfa, input_fasta)
+    #run the classification wrapper 
+    classification_wrapper.run()
+
+
+    #return the plaspipe_data after the changement of the classification wrapper, add contigs class
+    return classification_wrapper
+
+#the function to run the binning wrapper
+def run_binning(binning_folder, prefix, config, input_fasta, input_gfa):
+    
+
+    binning_wrapper = BinningWrapper(binning_folder, prefix, config, input_fasta, input_gfa)
+
+    binning_wrapper.run()
+
+    return binning_wrapper
+
+def run_plaspipe_data (classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta):
+
+    #cretae the plaspipe_data instance
+    plaspipe_data = PipelineData(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
 
     #load contigs name
     plaspipe_data.load_contigs()
 
-    #run the classification wrapper 
-    classification_wrapper.run()
-
     #update the plaspipe_data
     plaspipe_data.update_plaspipe_data_from_classwrapper()
+        
+    #update the plaspipe_data
+    plaspipe_data.update_plaspipe_data_from_binwrapper()
 
-    #return the plaspipe_data after the changement of the classification wrapper, add contigs class
     return plaspipe_data
 
-#the function to run the binning wrapper
-def run_binning(config, plaspipe_data, input_gfa, timestamp):
-    output_path = f"result_{timestamp}.csv"
-    binning_wrapper = BinningWrapper(input_gfa, output_path, config, plaspipe_data)
-    binning_wrapper.run()
 
 
 
@@ -205,13 +218,14 @@ def main():
 
     #extract the temp directory of the output different format of the classification tool
     classification_dir = method_configs['classification']['output']['outdir_classification']
+    binning_dir = method_configs['binning']['output']['outdir_binning']
     prefix = method_configs['prefix']
     #get the work direct
     current_dir = os.getcwd()
     
+    class_tool_name = method_configs['classification']['name']
+    class_tool_version = method_configs['classification']['version']
 
-    #use time to generate output files
-    timestamp = int(time.time())
 
 
 
@@ -219,11 +233,20 @@ def main():
         print("this pipeline can't handle the conversion of fasta to GFA")
     else:
 
-        #the return of the run_classification function is pipeline data
-        plaspipe_data = run_classification(classification_dir, prefix, method_configs['classification'], input_fasta, input_gfa,method_configs['classification']['name'],method_configs['classification']['version'] )
+        #create the instance of plaspipe_data
+        #plaspipe_data = PipelineData(class_tool_name, class_tool_version, input_gfa, input_fasta)
+        
 
-        #binning_repo_path = os.path.join(current_dir, method_configs['binning']['name'])
-        #run_binning(method_configs['binning'], plaspipe_data, input_gfa, timestamp)
+
+
+        #run the classiifcation wrapper function
+        classification_wrapper = run_classification(classification_dir, prefix, method_configs['classification'], input_fasta, input_gfa, class_tool_name, class_tool_version )
+
+        #run the binning wrapper function
+        binning_wrapper = run_binning(binning_dir, prefix, method_configs['binning'], input_fasta, input_gfa)
+
+        #run the plaspipe function
+        plaspipe_data = run_plaspipe_data(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
 
         #for the output of the pipeline
         out_dir = method_configs['outdir_pipeline']
