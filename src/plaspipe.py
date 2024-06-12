@@ -49,11 +49,15 @@ def load_yaml(file):
 #need to change, the inpute of the pipeline will be provided from the yaml file
 def get_input_file(method_config):
 
+    outdir_pipeline = method_config['outdir_pipeline']
+    os.makedirs(outdir_pipeline, exist_ok=True)
+
     gun_gfa_path = os.path.join(method_config['outdir_pipeline'], "gunzipped_gfa.gfa") 
     gun_fasta_path = os.path.join(method_config['outdir_pipeline'], "gunzipped_fasta.fasta")  
 
     gfa_path = method_config['input']['path_to_input_gfa']
     fasta_path = method_config['input']['path_to_input_fasta']
+    print(f"this is my gfa file {gfa_path}")
 
     if gfa_path and gfa_path.endswith('.gz'):
         gfa_path = gunzip_GFA(gfa_path, gun_gfa_path)
@@ -79,6 +83,7 @@ def gunzip_GFA(in_file_path, out_file_path):
     try:
         with gzip.open(in_file_path) as in_file, open(out_file_path, 'wb') as out_file:
             shutil.copyfileobj(in_file, out_file)
+            print(f'this my gfa file gunzipped {out_file_path}')
             return out_file_path
     except Exception as e:
         process_exception(f'FASTA\tGunzipping {in_file_path} to {out_file_path}: {e}')
