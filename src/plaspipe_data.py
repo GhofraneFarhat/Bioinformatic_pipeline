@@ -21,9 +21,10 @@ class PipelineData:
     then after the classifcation wrapper it gets updated with the contigs score, after the binning wrapper 
     it get updated with the bins
     """ 
-    def __init__(self, classification_wrapper, classification_tool_name, classification_tool_version, gfa_path= "", fasta_path="", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+    def __init__(self, classification_wrapper,binning_wrapper, classification_tool_name, classification_tool_version, gfa_path= "", fasta_path="", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
      
         self.classification_wrapper = classification_wrapper
+        self.binning_wrapper = binning_wrapper
 
         self.tool_name = classification_tool_name
         self.tool_version = classification_tool_version
@@ -145,7 +146,28 @@ class PipelineData:
 
 
             if output_class_pipeline.endswith ('.csv'): #we will need just the csv format 
-                self.update_plaspipe_data_from_csv(reader)
+                self.update_plaspipe_data_from_class_csv(reader)
+
+
+            else:
+                print("Unsupported output format")
+
+    def update_plaspipe_data_from_binwrapper(self): #pipeline_file_resultat
+        print("let's update")
+        
+        #convert the tool output format to the pipeline output format
+        output_bin_pipeline = self.binning_wrapper.get_csv_file()
+        print("let's use a csv file")
+        print(output_bin_pipeline)
+
+
+        with open(output_bin_pipeline, 'r') as binning_result:
+            reader = csv.DictReader(binning_result)
+            print(f"I'm using {output_bin_pipeline}")
+
+
+            if output_bin_pipeline.endswith ('.csv'): #we will need just the csv format 
+                self.update_plaspipe_data_from_bin_csv(reader)
 
 
             else:
@@ -155,7 +177,7 @@ class PipelineData:
 
     # update from a csv file
     #need to change the update from csv to use the csv biblio
-    def update_plaspipe_data_from_csv(self, classification_result):
+    def update_plaspipe_data_from_class_csv(self, classification_result):
 
                
         next(classification_result)# Skip the header row if there is one
@@ -172,6 +194,24 @@ class PipelineData:
             }#dict of contigs from the classification tool
 
             self.set_contigs(self.tool_name, self.tool_version, contig_name, contig_class)
+
+    def update_plaspipe_data_from_class_bin_csv(self, binning_result):
+
+        # Skip the first line
+        next(binning_result)
+        
+        for line in binning_result:
+
+            contig_name = line['contig_name']
+            bin_id = line['bin_id']
+
+
+            contig_list = self.pipeline_data.get_bin_contig(bin_id)
+            if contig_list is None:
+                self.pipeline_data.set_bins(bin_id, [contig_name])
+            else:
+                contig_list.append(contig_name)
+                self.pipeline_data.set_bins(bin_id, contig_list)
 
     #we need to handle if in the conversation of the file we lose a contig cause of an error 
 
