@@ -17,6 +17,8 @@ def generate_content_gc_file(method_configuration, gfa_path):
 
     subprocess.run(command, check=True)
 
+    return path_to_gc_content_file
+
 def generate_input_file(gfa_path, sample = 'ABCD'):
 
     """
