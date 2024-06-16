@@ -228,6 +228,9 @@ def main():
     class_tool_name = method_configs['classification']['name']
     class_tool_version = method_configs['classification']['version']
 
+    bin_tool_name = method_configs['binning']['name']
+    bin_tool_version = method_configs['binning']['version']
+
 
 
 
