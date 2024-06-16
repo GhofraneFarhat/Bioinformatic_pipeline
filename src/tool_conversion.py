@@ -17,6 +17,10 @@ def get_conversion_class(tool_name, tool_version):
         from tool_conversion.plasgraph_conversion import CsvToCsv
         return CsvToCsv
 
+    elif tool_name == 'plasbin_flow':
+        from tool_conversion.plasgraph_conversion import CsvToCsv
+        return CsvToCsv
+
     else:
         raise ValueError(f"Unsupported tool: {tool_name}")
 

@@ -5,7 +5,8 @@ def get_command(method_config, input_file, output_file):
         'plASgraph2': 'python {script} gfa {input_file} {parameter} {output_file}',
         'platon': 'platon {input_file} {output_file}',
         'classify': 'python {script} -i {input_file} -o {output_file}',
-        'bin_tool': 'python {script} {input_file} {output_file}'
+        'bin_tool': 'python {script} {input_file} {output_file}',
+        'plasbin_flow': 'python {script} {input_file} {output_file}'
     }
 
     # Extract tool_name, tool_version, script_path
