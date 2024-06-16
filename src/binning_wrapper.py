@@ -21,7 +21,7 @@ class BinningWrapper:
     """ 
 
 #initialisation
-    def __init__(self, binning_folder, prefix, binning_config, fasta_path="", gfa_path = "", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+    def __init__(self, binning_folder, prefix, binning_config, fasta_path="", gfa_path = "", classification_dir = "", class_tool_name = "", class_version = "", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
         #self.input_path = input_file
         #self.output_classif = output_of_classification
         self.binning_dir = binning_folder
@@ -32,9 +32,15 @@ class BinningWrapper:
         self.fasta_path = fasta_path
         self.gfa_path = gfa_path
 
+        self.classification_result_path = classification_dir
+        self.class_tool_name = class_tool_name
+        self.class_version = class_version
+
         self.gzipped_gfa = gzipped_gfa
         self.gzipped_fasta = gzipped_fasta
         self.id_fun = id_fun
+
+
         #self.class_dir = temp_dir
         #self.pipeline_data = pipeline_data
         #the path to save the output of the tool 
@@ -114,9 +120,14 @@ class BinningWrapper:
         output_binning = os.path.join(self.binning_dir, self.prefix + '_' + bin_tool_name + '_' + version + '.' + output_format )
         
 
+        #get the result of the classification tool for the binning tool
+        classification_result_csv = os.path.join(self.classification_result_path, self.prefix + '_' + self.class_tool_name + '_' + self.class_version + '.csv')
+        
+        print(f'clasiiiiiiiiiiiification folder for bining {self.classification_result_path}')
+        print(f'yoyo i am the result of the classification_tool {classification_result_csv}')
 
         # Construct the full command with input_file_path and output_file
-        full_command = get_command(self.method_configuration, self.input_bin_converted, output_binning)
+        full_command = get_command(self.method_configuration, self.input_bin_converted, output_binning, classification_result_csv)
         print(f'this is my command for the binning tool {full_command}')
 
         # Run the command using subprocess

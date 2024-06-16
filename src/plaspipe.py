@@ -141,10 +141,10 @@ def run_classification(classification_folder, prefix, config, input_fasta, input
     return classification_wrapper
 
 #the function to run the binning wrapper
-def run_binning(binning_folder, prefix, config, input_fasta, input_gfa):
+def run_binning(binning_folder, prefix, config, input_fasta, input_gfa, classification_path, class_tool_name, class_tool_version):
     
-
-    binning_wrapper = BinningWrapper(binning_folder, prefix, config, input_fasta, input_gfa)
+    print(f'classification folder {classification_path}')
+    binning_wrapper = BinningWrapper(binning_folder, prefix, config, input_fasta, input_gfa, classification_path, class_tool_name, class_tool_version)
 
     binning_wrapper.run()
 
@@ -220,8 +220,10 @@ def main():
     classification_dir = method_configs['classification']['output']['outdir_classification']
     binning_dir = method_configs['binning']['output']['outdir_binning']
     prefix = method_configs['prefix']
-    #get the work direct
-    current_dir = os.getcwd()
+    
+    print(f'the classifcation_dir {classification_dir}')
+    
+    
     
     class_tool_name = method_configs['classification']['name']
     class_tool_version = method_configs['classification']['version']
@@ -243,7 +245,7 @@ def main():
         classification_wrapper = run_classification(classification_dir, prefix, method_configs['classification'], input_fasta, input_gfa, class_tool_name, class_tool_version )
 
         #run the binning wrapper function
-        binning_wrapper = run_binning(binning_dir, prefix, method_configs['binning'], input_fasta, input_gfa)
+        binning_wrapper = run_binning(binning_dir, prefix, method_configs['binning'], input_fasta, input_gfa, classification_dir, class_tool_name, class_tool_version)
 
         #run the plaspipe function
         plaspipe_data = run_plaspipe_data(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
