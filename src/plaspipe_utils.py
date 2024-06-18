@@ -1,8 +1,9 @@
 import os
+import logging
 
 def csv_to_tsv(csv_file_path):
     """
-    Convert a CSV file to a TSV file with the same name and path, only changing the file extension.
+    Convert a CSV file to a TSV file
 
     Args:
         csv_file_path (str): Path to the input CSV file.
@@ -10,11 +11,11 @@ def csv_to_tsv(csv_file_path):
     Returns:
         str: Path to the output TSV file.
     """
-    # Get the directory and filename from the input CSV file path
-    directory, filename = os.path.split(csv_file_path)
+    
+    directory, tsv_filename = os.path.split(csv_file_path)
 
     # Create the output TSV filename by replacing the extension
-    tsv_filename = os.path.splitext(filename)[0] + '.tsv'
+    tsv_filename = os.path.splitext(tsv_filename)[0] + '.tsv'
 
     # Join the directory and TSV filename to get the output TSV file path
     tsv_file_path = os.path.join(directory, tsv_filename)
@@ -27,3 +28,7 @@ def csv_to_tsv(csv_file_path):
 
     return tsv_file_path
 
+def process_exception(msg):
+    logging.exception(msg)
+    print(f'EXCEPTION\t{msg}', file=sys.stderr)
+    sys.exit(1)
