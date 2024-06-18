@@ -47,13 +47,5 @@ class FastaToCsv:
         return self.csv_file
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Convert Fasta to CSV')
-    parser.add_argument('fasta_file', type=str, help='Path to the input fasta file')
-    parser.add_argument('csv_file', type=str, help='Path to the output csv file')
 
-    args = parser.parse_args()
-
-    conversion = FastaToCsv(args.fasta_file, args.csv_file)
-    res = conversion.convert()
     
