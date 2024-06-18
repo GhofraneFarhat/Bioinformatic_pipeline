@@ -150,27 +150,13 @@ def run_binning(binning_folder, prefix, config, input_fasta, input_gfa, classifi
 
     return binning_wrapper
 
-def run_plaspipe_data (classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta):
 
-    #cretae the plaspipe_data instance
-    plaspipe_data = PipelineData(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
-
-    #load contigs name
-    plaspipe_data.load_contigs()
-
-    #update the plaspipe_data
-    plaspipe_data.update_plaspipe_data_from_classwrapper()
-        
-    #update the plaspipe_data
-    plaspipe_data.update_plaspipe_data_from_binwrapper()
-
-    return plaspipe_data
 
 
 
 
 #the function to generate the pipeline output file of the pipeline
-def generate_output_file(pipeline_data, pipeline_output_file, out_dir):
+def generate_output_file(pipeline_data, pipeline_output_file, out_dir, contigs, bins):
     """ 
     this function is to generate the pipeline result saved in a file
     Args:
@@ -185,11 +171,6 @@ def generate_output_file(pipeline_data, pipeline_output_file, out_dir):
     # Create the directory if it doesn't exist
     os.makedirs(out_dir, exist_ok=True)
 
-    #the result of the classification tool
-    contigs = pipeline_data.get_contigs()
-
-    #the result of the binning tool
-    bins = pipeline_data.get_bins()
 
     #the path to the file result of the pipeline
     output_file = os.path.join(out_dir, pipeline_output_file)
@@ -241,21 +222,43 @@ def main():
         #create the instance of plaspipe_data
         #plaspipe_data = PipelineData(class_tool_name, class_tool_version, input_gfa, input_fasta)
         
+        #cretae the plaspipe_data instance
+        plaspipe_data = PipelineData("", "", class_tool_name, class_tool_version, input_gfa, input_fasta)
 
+        #load contigs name
+        plaspipe_data.load_contigs()
 
 
         #run the classiifcation wrapper function
         classification_wrapper = run_classification(classification_dir, prefix, method_configs['classification'], input_fasta, input_gfa, class_tool_name, class_tool_version )
 
+        #cretae the plaspipe_data instance
+        plaspipe_data = PipelineData(classification_wrapper, "", class_tool_name, class_tool_version, input_gfa, input_fasta)
+
+        #update the plaspipe_data
+        plaspipe_data.update_plaspipe_data_from_classwrapper()
+
+        #the result of the classification tool
+        contigs = plaspipe_data.get_contigs()
+
         #run the binning wrapper function
         binning_wrapper = run_binning(binning_dir, prefix, method_configs['binning'], input_fasta, input_gfa, classification_dir, class_tool_name, class_tool_version)
 
+        #cretae the plaspipe_data instance
+        plaspipe_data = PipelineData(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
+
+        #update the plaspipe_data
+        plaspipe_data.update_plaspipe_data_from_binwrapper()
+
+        #the result of the binning tool
+        bins = plaspipe_data.get_bins()
+
         #run the plaspipe function
-        plaspipe_data = run_plaspipe_data(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
+        #plaspipe_data = run_plaspipe_data(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
 
         #for the output of the pipeline
         out_dir = method_configs['outdir_pipeline']
-        generate_output_file(plaspipe_data, args.pipeline_output, out_dir)
+        generate_output_file(plaspipe_data, args.pipeline_output, out_dir, contigs, bins)
 
 if __name__ == "__main__":
     main()

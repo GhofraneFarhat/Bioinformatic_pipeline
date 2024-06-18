@@ -192,6 +192,7 @@ class PipelineData:
             plasmid_score = line['plasmid_score']
             chromosome_score = line['chromosome_score']
 
+            print(f'!!!!!!!i wanna get updated using contigs {contig_name}')
             contig_class = {
                 'plasmid_score': float(plasmid_score),
                 'chromosome_score': float(chromosome_score)
@@ -206,15 +207,15 @@ class PipelineData:
         
         for line in binning_result:
 
-            contig_name = line['Contig']
+            contig_names = line['Contig']
             bin_id = line['Bin']
 
 
             contig_list = self.get_bin_contig(bin_id)
             if contig_list is None:
-                self.set_bins(bin_id, [contig_name])
+                self.set_bins(bin_id, [contig_names])
             else:
-                contig_list.append(contig_name)
+                contig_list.append(contig_names)
                 self.set_bins(bin_id, contig_list)
 
     #we need to handle if in the conversation of the file we lose a contig cause of an error 
