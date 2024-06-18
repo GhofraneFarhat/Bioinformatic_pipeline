@@ -223,17 +223,17 @@ def main():
         #plaspipe_data = PipelineData(class_tool_name, class_tool_version, input_gfa, input_fasta)
         
         #cretae the plaspipe_data instance
-        plaspipe_data = PipelineData("", "", class_tool_name, class_tool_version, input_gfa, input_fasta)
+        plaspipe_data = PipelineData(method_configs, prefix, class_tool_name, class_tool_version, bin_tool_name, bin_tool_version, input_gfa, input_fasta, classification_dir, binning_dir)
 
         #load contigs name
         plaspipe_data.load_contigs()
 
 
         #run the classiifcation wrapper function
-        classification_wrapper = run_classification(classification_dir, prefix, method_configs['classification'], input_fasta, input_gfa, class_tool_name, class_tool_version )
+        #classification_wrapper = run_classification(classification_dir, prefix, method_configs['classification'], input_fasta, input_gfa, class_tool_name, class_tool_version )
 
         #cretae the plaspipe_data instance
-        plaspipe_data = PipelineData(classification_wrapper, "", class_tool_name, class_tool_version, input_gfa, input_fasta)
+        #plaspipe_data = PipelineData(classification_wrapper, "", class_tool_name, class_tool_version, input_gfa, input_fasta)
 
         #update the plaspipe_data
         plaspipe_data.update_plaspipe_data_from_classwrapper()
@@ -242,10 +242,10 @@ def main():
         contigs = plaspipe_data.get_contigs()
 
         #run the binning wrapper function
-        binning_wrapper = run_binning(binning_dir, prefix, method_configs['binning'], input_fasta, input_gfa, classification_dir, class_tool_name, class_tool_version)
+        #binning_wrapper = run_binning(binning_dir, prefix, method_configs['binning'], input_fasta, input_gfa, classification_dir, class_tool_name, class_tool_version)
 
         #cretae the plaspipe_data instance
-        plaspipe_data = PipelineData(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
+        #plaspipe_data = PipelineData(classification_wrapper, binning_wrapper, class_tool_name, class_tool_version, input_gfa, input_fasta)
 
         #update the plaspipe_data
         plaspipe_data.update_plaspipe_data_from_binwrapper()

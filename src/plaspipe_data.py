@@ -24,16 +24,23 @@ class PipelineData:
     then after the classifcation wrapper it gets updated with the contigs score, after the binning wrapper 
     it get updated with the bins
     """ 
-    def __init__(self, classification_wrapper = '', binning_wrapper = "", classification_tool_name = 'classify', classification_tool_version = '1.0.0', gfa_path= "", fasta_path="", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+    def __init__(self, method_config = "", prefix = "", classification_tool_name = 'classify', classification_tool_version = '1.0.0', binning_tool_name = 'bin_tool', binning_tool_version = '1.0.0', gfa_path= "", fasta_path="", classification_dir = "", binning_dir = "", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
      
-        self.classification_wrapper = classification_wrapper
-        self.binning_wrapper = binning_wrapper
+        self.method_configuration = method_config
+        self.prefix = prefix
 
         self.tool_name = classification_tool_name
         self.tool_version = classification_tool_version
+        self.bin_tool_name = binning_tool_name
+        self.bin_tool_version = binning_tool_version
 
         self.gfa_path = gfa_path
         self.fasta_path = fasta_path
+
+        #classification wrapper
+        self.classification_folder = classification_dir
+        #binning wrapper
+        self.binning_folder = binning_dir
         
         #self.method_config = method_config
         self.gzipped_gfa = gzipped_gfa
@@ -137,9 +144,11 @@ class PipelineData:
     def update_plaspipe_data_from_classwrapper(self): #pipeline_file_resultat
         print("let's update")
         
-        #classification_wrapper = ClassificationWrapper()
+
+        #create the classification wrapper instance
+        classification_wrapper = ClassificationWrapper(self.classification_folder, self.prefix, self.method_configuration['classification'], self.fasta_path, self.gfa_path, self.gzipped_gfa, self.gzipped_fasta)
         #convert the tool output format to the pipeline output format
-        output_class_pipeline = self.classification_wrapper.get_csv_file()
+        output_class_pipeline = classification_wrapper.get_csv_file()
         print("let's use a csv file")
         print(output_class_pipeline)
 
@@ -159,8 +168,11 @@ class PipelineData:
     def update_plaspipe_data_from_binwrapper(self): #pipeline_file_resultat
         print("let's update")
         
+        #create the binning wrapper instance
+        binning_wrapper = BinningWrapper(self.binning_folder, self.prefix, self.method_configuration['binning'], self.fasta_path, self.gfa_path, self.classification_folder, self.tool_name, self.tool_version, self.gzipped_gfa, self.gzipped_fasta)
+
         #convert the tool output format to the pipeline output format
-        output_bin_pipeline = self.binning_wrapper.get_csv_file_from_binning()
+        output_bin_pipeline = binning_wrapper.get_csv_file_from_binning()
         print("let's use a csv file")
         print(output_bin_pipeline)
 
@@ -205,6 +217,7 @@ class PipelineData:
         # Skip the first line
         next(binning_result)
         
+        
         for line in binning_result:
 
             contig_names = line['Contig']
@@ -217,7 +230,14 @@ class PipelineData:
             else:
                 contig_list.append(contig_names)
                 self.set_bins(bin_id, contig_list)
+        """
+        for line in binning_result:
+            contig_names = line['Contig']
+            bin_id = line['Bin']
+            self.set_bins(bin_id, [contig_names], self.bin_tool_name, self.bin_tool_version)
 
+
+        """
     #we need to handle if in the conversation of the file we lose a contig cause of an error 
 
 
@@ -228,6 +248,7 @@ class PipelineData:
     # Update the dict of contigs after the classification method (classification wrapper)
     def set_contigs(self, tool_name, tool_version, contig_name, contig_class):
 
+        #extract the tool info for the classification result
         tool_key = (tool_name, tool_version)
 
         if tool_key not in self.contigs:
@@ -240,8 +261,24 @@ class PipelineData:
 
 
     # Update the dict of bins after the binning method (binning wrapper)
+    """
+    def set_bins(self, bin_id, contigs, bin_tool_name, bin_tool_version):
+        bin_tool_key = (bin_tool_name, bin_tool_version)
+        if bin_tool_key not in self.bins:
+            self.bins[bin_tool_key] = {}
+    
+        if bin_id in self.bins[bin_tool_key]:
+            self.bins[bin_tool_key][bin_id].extend(contigs)
+        else:
+            self.bins[bin_tool_key][bin_id] = contigs
+
+    """
     def set_bins(self, bin_id, contigs):
+
+        #extract the tool info for the binning result
+
         self.bins[bin_id] = contigs  # contigs is a list of contig in this bin
+    
 
 
     # Access to contigs dict

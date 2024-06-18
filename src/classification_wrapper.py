@@ -21,7 +21,7 @@ class ClassificationWrapper:
     """ 
 
 #initialisation
-    def __init__(self, classification_folder, prefix, method_config, fasta_path="", gfa_path = "", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+    def __init__(self, classification_folder, prefix, method_config, fasta_path="", gfa_path = "", gzipped_gfa=False, gzipped_fasta=False):
         #self.input_path = input_file
         #self.output_classif = output_of_classification
         self.classification_dir = classification_folder
@@ -34,30 +34,15 @@ class ClassificationWrapper:
 
         self.gzipped_gfa = gzipped_gfa
         self.gzipped_fasta = gzipped_fasta
-        self.id_fun = id_fun
+        #self.id_fun = id_fun
         #self.class_dir = temp_dir
         #self.pipeline_data = pipeline_data
         #the path to save the output of the tool 
         #self.class_conversion = class_conv  
 
-        # Mandatory fields in GFA contigs and links
-        self.GFA_SEQ_KEY = 'Sequence'
-        self.GFA_LEN_KEY = 'Length'
-        self.GFA_FROM_KEY = 'From'
-        self.GFA_FROM_ORIENT_KEY = 'FromOrient'
-        self.GFA_TO_KEY = 'To'
-        self.GFA_TO_ORIENT_KEY = 'ToOrient'
-        self.GFA_OVERLAP_KEY = 'Overlap'
 
-        # Conversion of GFA attributes.
-        # Missing attributes types: B, J
-        self.GFA_ATTRIBUTE_TYPE = {
-            'i': lambda x: int(float(x)),
-            'f': lambda x: float(x),
-            'Z': lambda x: str(x),
-            'A': lambda x: str(x),
-            'H': lambda x: bytes(x)
-        }
+
+
 
 
     #to run the tool 
@@ -65,8 +50,10 @@ class ClassificationWrapper:
 
 
         # Run the classification tool : need to see more about the parameters
-        self.resultat_of_classification = self.run_classification()
+        resultat_of_wrapper = self.run_classification()
         
+        return resultat_of_wrapper
+
 
     #the function to run the classification tool
     def run_classification(self):
@@ -160,8 +147,9 @@ class ClassificationWrapper:
         """ 
         returns: the csv file for the pipeline
         """
+        resultat_of_classification = self.run()
 
-        output_pipeline_csv = self.pipeline_conversion_to_csv(self.resultat_of_classification)
+        output_pipeline_csv = self.pipeline_conversion_to_csv(resultat_of_classification)
         print("hey now I'm a csv file")
         return output_pipeline_csv 
 

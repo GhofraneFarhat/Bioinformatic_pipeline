@@ -21,7 +21,7 @@ class BinningWrapper:
     """ 
 
 #initialisation
-    def __init__(self, binning_folder, prefix, binning_config, fasta_path="", gfa_path = "", classification_dir = "", class_tool_name = "", class_version = "", gzipped_gfa=False, gzipped_fasta=False, id_fun=lambda x: x):
+    def __init__(self, binning_folder, prefix, binning_config, fasta_path="", gfa_path = "", classification_dir = "", class_tool_name = "", class_version = "", gzipped_gfa=False, gzipped_fasta=False):
         #self.input_path = input_file
         #self.output_classif = output_of_classification
         self.binning_dir = binning_folder
@@ -38,7 +38,7 @@ class BinningWrapper:
 
         self.gzipped_gfa = gzipped_gfa
         self.gzipped_fasta = gzipped_fasta
-        self.id_fun = id_fun
+        #self.id_fun = id_fun
 
 
         #self.class_dir = temp_dir
@@ -46,24 +46,6 @@ class BinningWrapper:
         #the path to save the output of the tool 
         #self.class_conversion = class_conv  
 
-        # Mandatory fields in GFA contigs and links
-        self.GFA_SEQ_KEY = 'Sequence'
-        self.GFA_LEN_KEY = 'Length'
-        self.GFA_FROM_KEY = 'From'
-        self.GFA_FROM_ORIENT_KEY = 'FromOrient'
-        self.GFA_TO_KEY = 'To'
-        self.GFA_TO_ORIENT_KEY = 'ToOrient'
-        self.GFA_OVERLAP_KEY = 'Overlap'
-
-        # Conversion of GFA attributes.
-        # Missing attributes types: B, J
-        self.GFA_ATTRIBUTE_TYPE = {
-            'i': lambda x: int(float(x)),
-            'f': lambda x: float(x),
-            'Z': lambda x: str(x),
-            'A': lambda x: str(x),
-            'H': lambda x: bytes(x)
-        }
       
 
 
@@ -71,9 +53,9 @@ class BinningWrapper:
     def run(self):
 
         # Run the binning tool : need to see more about the parameters
-        self.resultat_of_binning = self.run_binning()
+        resultat_of_wrapper = self.run_binning()
         
-
+        return resultat_of_wrapper
 
 
     #the function to run the binning tool
@@ -176,7 +158,8 @@ class BinningWrapper:
         returns: the csv file for the pipeline
         """
 
-        output_pipeline_csv = self.pipeline_conversion_to_csv(self.resultat_of_binning)
+        resultat_of_binning = self.run()
+        output_pipeline_csv = self.pipeline_conversion_to_csv(resultat_of_binning)
         print("hey now I'm a csv file")
         return output_pipeline_csv 
 
