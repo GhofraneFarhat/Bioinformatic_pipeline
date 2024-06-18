@@ -3,7 +3,7 @@ import subprocess
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-import logging
+from .plaspipe_utils import process_exception
 import sys
 
 # Mandatory fields in GFA contigs and links
@@ -131,7 +131,3 @@ def write_GFA_to_FASTA(in_GFA_file, out_FASTA_file, in_gzipped, out_gzipped, sep
     except Exception as e:
         process_exception(f'FASTA/GFA\tWriting {in_GFA_file} to {out_FASTA_file}: {e}')
 
-def process_exception(msg):
-    logging.exception(msg)
-    print(f'EXCEPTION\t{msg}', file=sys.stderr)
-    sys.exit(1)
