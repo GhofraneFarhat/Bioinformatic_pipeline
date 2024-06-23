@@ -10,10 +10,13 @@ import logging
 from Bio import SeqIO
 
 from .plaspipe_utils import process_exception
+from .plaspipe_utils import process_error
 from .plaspipe_utils import check_file
 from .plaspipe_utils import gunzip_FASTA
 from .plaspipe_utils import gunzip_GFA
 from .plaspipe_utils import create_directory
+from .plaspipe_utils import verify_input_file
+from .plaspipe_utils import check_gfa_input
 
 
 from .plaspipe_data import PipelineData
@@ -59,6 +62,7 @@ def load_yaml(file):
 
     try:
         with open(file, 'r') as yaml_file:
+            
             configs = yaml.safe_load(yaml_file)
         if not configs:
             process_exception(f'YAML file {file} is empty.')
@@ -70,10 +74,12 @@ def load_yaml(file):
 def get_input_file(method_config):
 
     outdir_pipeline = method_config['outdir_pipeline']
-    os.makedirs(outdir_pipeline, exist_ok=True)
+    prefix = method_config['prefix']
 
-    gun_gfa_path = os.path.join(method_config['outdir_pipeline'], "gunzipped_gfa.gfa") 
-    gun_fasta_path = os.path.join(method_config['outdir_pipeline'], "gunzipped_fasta.fasta")  
+    pipeline_output_path = create_directory(outdir_pipeline, prefix)
+
+    gun_gfa_path = os.path.join(pipeline_output_path, "gunzipped_gfa.gfa") 
+    gun_fasta_path = os.path.join(pipeline_output_path, "gunzipped_fasta.fasta")  
 
     gfa_path = method_config['input']['path_to_input_gfa']
     fasta_path = method_config['input']['path_to_input_fasta']
@@ -94,6 +100,9 @@ def get_input_file(method_config):
             fasta_path = gunzip_FASTA(fasta_path, gun_fasta_path)
     except Exception as e:
         logging.error(f"Error unzipping FASTA file {fasta_path}: {e}")
+
+    #chech the input files
+    verify_input_file(gfa_path, fasta_path)
 
 
     return gfa_path, fasta_path
@@ -153,23 +162,20 @@ def get_pipeline_configs(method_configs):
 
 
 #the function to generate the pipeline output file of the pipeline
-def generate_output_file(pipeline_data, pipeline_output_file, out_dir):
+def generate_output_file(pipeline_data, pipeline_output_file, out_dir, prefix):
 
     """
-    Generate the pipeline output file.
+    Generate the pipeline output file
 
     Args:
-        pipeline_data (PipelineData): Instance of the PipelineData class.
+        pipeline_data (PipelineData): Instance of the PipelineData class
         pipeline_output_file (str): Name of the output file of the pipeline
-        out_dir (str): Directory to save the output file.
+        out_dir (str): Directory to save the output file
     """
 
-    if out_dir is None:
-        out_dir = os.getcwd()
-        print(out_dir)
 
     # Create the directory if it doesn't exist
-    create_directory(out_dir) 
+    out_dir = create_directory(out_dir, prefix) 
 
     # Get the contigs and bins from the PipelineData instance
     contigs = pipeline_data.get_contigs()
@@ -191,9 +197,8 @@ def generate_output_file(pipeline_data, pipeline_output_file, out_dir):
     
     print(f"Results saved to {output_file}")
 
+
 def main():
-
-
     try:
         args = parse_arguments()
         method_configs = load_yaml(args.user_file)
@@ -210,14 +215,19 @@ def main():
         print(f'Classification output directory: {classification_dir}')
 
         # Check if the pipeline can handle the input format
-        if (class_input_format == 'GFA' or bin_input_format == 'GFA') and (input_gfa is None):
-            print("This pipeline cannot handle the conversion of FASTA to GFA")
-        else:
+        try:
+
+            #verify if the input format of the tools is supported
+            check_gfa_input(class_input_format, bin_input_format, input_gfa)
+
             # Create the PipelineData instance
             plaspipe_data = run_plaspipe_data(method_configs, prefix, class_tool_name, class_tool_version, bin_tool_name, bin_tool_version, input_gfa, input_fasta, classification_dir, binning_dir)
 
             # Generate the pipeline output file
-            generate_output_file(plaspipe_data, args.pipeline_output, out_dir)
+            generate_output_file(plaspipe_data, args.pipeline_output, out_dir, prefix)
+
+        except ValueError as ve:
+            process_error(str(ve))
 
     except Exception as e:
         process_exception(f"An error occurred: {e}")
