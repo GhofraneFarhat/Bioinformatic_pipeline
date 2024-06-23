@@ -5,227 +5,158 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import logging
 import sys
+
+from .plaspipe_utils import process_exception
+from .plaspipe_utils import process_error
+from .plaspipe_utils import create_directory
+from .plaspipe_utils import check_file
+
 from .tool_command import get_command
 from .tool_conversion import run_conversion
 from .gfa_to_fasta import write_GFA_to_FASTA
 
-
 class BinningWrapper:
-
     """
-    the binning wrapper is reponsible for the formating the input of the pipeline (fasta or GFA) and for
-    converting the output of the tool format to the pipeline output format (csv)
+    The BinningWrapper is responsible for formatting the input of the pipeline (FASTA or GFA)
+    and converting the output of the tool format to the pipeline output format (CSV).
+    """
 
-    Args: 
-    Returns:
-    """ 
+    def __init__(self, binning_folder, prefix, binning_config, fasta_path="", gfa_path="",  gzipped_gfa=False, gzipped_fasta=False, classification_result_file = ""):
+        
+        """
+        Initialize the BinningWrapper
+        Args:
+            binning_folder (str): Path to the binning output folder (from the yaml file).
+            prefix (str): Prefix
+            method_config (dict): Configuration for the binning method (from the yaml file).
+            fasta_path (str): Path to the input FASTA file
+            gfa_path (str): Path to the input GFA file
+            gzipped_gfa (bool): Whether the GFA file is gzipped
+            gzipped_fasta (bool): Whether the FASTA file is gzipped
+        """
 
-#initialisation
-    def __init__(self, binning_folder, prefix, binning_config, fasta_path="", gfa_path = "", classification_dir = "", class_tool_name = "", class_version = "", gzipped_gfa=False, gzipped_fasta=False):
-        #self.input_path = input_file
-        #self.output_classif = output_of_classification
         self.binning_dir = binning_folder
         self.prefix = prefix
         self.method_configuration = binning_config
-        #self.repo_path = repo_path
-        #self.output_file = output_conv
+
         self.fasta_path = fasta_path
         self.gfa_path = gfa_path
 
-        self.classification_result_path = classification_dir
-        self.class_tool_name = class_tool_name
-        self.class_version = class_version
-
         self.gzipped_gfa = gzipped_gfa
         self.gzipped_fasta = gzipped_fasta
-        #self.id_fun = id_fun
 
+        self.classification_result_csv = classification_result_file
 
-        #self.class_dir = temp_dir
-        #self.pipeline_data = pipeline_data
-        #the path to save the output of the tool 
-        #self.class_conversion = class_conv  
-
-      
-
-
-    #to run the tool from the file plaspipe.py
     def run(self):
 
-        # Run the binning tool : need to see more about the parameters
-        resultat_of_wrapper = self.run_binning()
-        
-        return resultat_of_wrapper
+        """
+        Run the binning tool
+        Returns:
+            str: Path to the binning tool output file.
+        """
+        try:
+            return self.run_binning()
+        except Exception as e:
+            process_exception(f"Error running binning: {str(e)}")
 
-
-    #the function to run the binning tool
     def run_binning(self):
-        
-        """ 
-        args:
-        command line: usually python script_binning.py
-        parameters: the tool parameter
-        input_bin_converted: the input file for the binning tool
-        output_bin: the output file result of running the binning tool
 
+        """
+        Run the binning tool with the appropriate input and parameters
         return: 
-        resultat the binning tool
-        """ 
-
-
-        #extract the input format
-        bin_format = self.method_configuration['input_format']  # bin_format for the format of the input of the binning tool
-        
-        #extract informations about the binning tool
-        bin_tool_name = self.method_configuration['name']
-        
-        version = self.method_configuration['version']
-
-        #extarct tool format of the output: need to find if i can do it without
-        output_format = self.method_configuration['output_format']
-
-        # Absolute path to the tool directory
-        #tool_directory = 'C:/Users/user/Desktop/Bioinformatic_pipeline/plASgraph'
-
-        # Change the working directory to the tool directory
-        #os.chdir(tool_directory)
-
-        #Formatting the input file of the pipeline 
-        self.input_bin_converted = self.conversion(bin_format, bin_tool_name) #the path to input file
-        print(f'here is my converted file for the binning tool {self.input_bin_converted}')
-        
-
-        # getting the tool parameter using the yaml file
-        tool_parameters = self.method_configuration['parameters'] # the parameter of the binning tool
-
-        #the file that the output results of the binning tool will be saved, have the format of the binning_tool
-        output_binning = os.path.join(self.binning_dir, self.prefix + '_' + bin_tool_name + '_' + version + '.' + output_format )
-        
-
-        #get the result of the classification tool for the binning tool
-        classification_result_csv = os.path.join(self.classification_result_path, self.prefix + '_' + self.class_tool_name + '_' + self.class_version + '.csv')
-        
-        print(f'clasiiiiiiiiiiiification folder for bining {self.classification_result_path}')
-        print(f'yoyo i am the result of the classification_tool {classification_result_csv}')
-
-        # Construct the full command with input_file_path and output_file
-        full_command = get_command(self.method_configuration, self.input_bin_converted, output_binning, classification_result_csv)
-        print(f'this is my command for the binning tool {full_command}')
-
-        # Run the command using subprocess
-        subprocess.run(full_command, shell=False)
-
-        #need to return the output_classif
-        print(f'this my binning tool result {output_binning}')
-        return output_binning
-
-
-    #convert to csv file
-    def pipeline_conversion_to_csv(self, file_path):
-        
-        """ 
-        this is the place of the conversion: 
-        args: 
-        tool_name
-        tool_version
-        path to tool_result_file
-        return:
-        pipeline_file: the standart file that we will use for the pipeline to update contigs 
-
-        """ 
-
-        #extract informations about the classification tool
-        bin_tool_name = self.method_configuration['name']
-        #prefix = self.method_configuration['prefix']
-        version = self.method_configuration['version']
-        
-
-
-        #specify csv file path
-        csv_file = csv_file = os.path.join(self.binning_dir, self.prefix + '_' + bin_tool_name + '_' + version + '.csv')
-        print(f'this is my csv file enjoy {csv_file}')
-
-
-        # Run the conversion script with run conversion
-        run_conversion(bin_tool_name, version, file_path, csv_file)
-
-        return csv_file
-
-    #getter for the classification_wrapper
-    def get_csv_file_from_binning(self):
-        
-        """ 
-        returns: the csv file for the pipeline
+        output_binning (str): path the the binning file result
         """
 
-        resultat_of_binning = self.run()
-        output_pipeline_csv = self.pipeline_conversion_to_csv(resultat_of_binning)
-        print("hey now I'm a csv file")
-        return output_pipeline_csv 
+        try:
+            bin_format = self.method_configuration['input_format']
+            bin_tool_name = self.method_configuration['name']
+            version = self.method_configuration['version']
+            output_format = self.method_configuration['output_format']
 
+            self.input_bin_converted = self.conversion(bin_format, bin_tool_name)
 
-    ######################################################################
-    ######################################################################
-    #conversion from GFA to fasta
-    
+            #check the converted file
+            check_file(self.input_bin_converted)
+            print(f'Converted input file for binning: {self.input_bin_converted}')
 
-    # The conversion function that will provide the path to the wrapper
-    #the conversionn function
+            output_binning = os.path.join(self.binning_dir, f"{self.prefix}_{bin_tool_name}_{version}.{output_format}")
+             
+
+            full_command = get_command(self.method_configuration, self.input_bin_converted, output_binning, self.classification_result_csv)
+
+            subprocess.run(full_command, shell=False, check=True)
+
+            return output_binning
+
+        except subprocess.CalledProcessError as e:
+            process_error(f"Error running binning command: {str(e)}")
+        except Exception as e:
+            process_exception(f"Unexpected error in run_binning: {str(e)}")
+
+    def pipeline_conversion_to_csv(self, file_path):
+
+        """
+        Convert the binning tool output to CSV format
+        Return: 
+        csv_file: the file of the binning result in the csv format
+        """
+        try:
+            bin_tool_name = self.method_configuration['name']
+            version = self.method_configuration['version']
+            csv_file = os.path.join(self.binning_dir, f"{self.prefix}_{bin_tool_name}_{version}.csv")
+            
+            run_conversion(bin_tool_name, version, file_path, csv_file)
+            print(f'CSV file created: {csv_file}')
+            return csv_file
+        except Exception as e:
+            process_exception(f"Error converting to CSV: {str(e)}")
+
+    def get_csv_file_from_binning(self):
+        """
+        Get the CSV file for the pipeline
+        return: 
+        output_pipeline_csv (str): path the csv file
+        """
+        try:
+            resultat_of_binning = self.run()
+
+            #check result of binning tool file
+            check_file(resultat_of_binning)
+
+            output_pipeline_csv = self.pipeline_conversion_to_csv(resultat_of_binning)
+            return output_pipeline_csv
+
+        except Exception as e:
+            process_exception(f"Error getting CSV file from binning result: {str(e)}")
+
     def conversion(self, input_format, folder_tool):
 
         """
-        conversion of gfa to fasta or just return path
-
-        Args:
-        input_format: fasta or gfa
-        folder_tool: to create the output file on the desired directory
-        gfa_path: the path to the gfa file, input of the pipeline
-        fasta_path: the path to the fasta file, input of the pipeline
-        gzipped: file gzipped or not
-        output_file: where the converted input got saved
-
-        return:
-            the path to the same file path if there's no conversion
-            the path to the converted file 
-
+        Convert GFA to FASTA or return the path to the appropriate input file
+        Return: 
+        output_bin_file (str): the path to the fasta or gfa path
         """
-        #print(self.output_file)
-        print("helllllllllllllllllllllllo")
-        print(self.gfa_path)
+        try:
+            if self.binning_dir is None:
+                self.binning_dir = os.getcwd()
 
-        # If binning_dir is None, set it to the current working directory
-        if self.binning_dir is None:
-            self.binning_dir = os.getcwd()
-        
-        output_bin_file = os.path.join (self.binning_dir , self.prefix + '_converted.fasta')
-        print(f"hello i wanna be converted here {output_bin_file}")
+            output_bin_file = os.path.join(self.binning_dir, f"{self.prefix}_converted.fasta")
+            create_directory(os.path.dirname(output_bin_file), self.prefix)
 
-        # Create the output directory if it doesn't exist
-        os.makedirs(os.path.dirname(output_bin_file), exist_ok=True)
-        
-
-        sep = ' '
-        if input_format == 'fasta':
-            if self.fasta_path:
-                return self.fasta_path
-            elif self.gfa_path:
-                print("wanna convert gfa with me?")
-                #problem with the the tool name 
-                
-                write_GFA_to_FASTA(self.gfa_path, output_bin_file, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
-                print(f"let's convert this gfa file {output_bin_file}")
-                return output_bin_file
-                
+            if input_format.lower() == 'fasta':
+                if self.fasta_path:
+                    return self.fasta_path
+                elif self.gfa_path:
+                    write_GFA_to_FASTA(self.gfa_path, output_bin_file, self.gzipped_gfa, self.gzipped_fasta)
+                    return output_bin_file
+                else:
+                    process_error("Neither GFA nor FASTA file provided as input.")
+            elif input_format.lower() == 'gfa':
+                if self.gfa_path:
+                    return self.gfa_path
+                else:
+                    process_error("GFA file not provided as input, and conversion from FASTA to GFA is not possible.")
             else:
-                raise ValueError("Neither GFA nor FASTA file provided as input.")
-        elif input_format == 'gfa' or input_format == 'GFA':
-            if self.gfa_path:
-                return self.gfa_path
-            else:
-                raise ValueError("GFA file not provided as input, and conversion from FASTA to GFA is not possible.")
-        else:
-            raise ValueError(f"You have to provide a fasta or GFA, Unsupported input format: {input_format}")
-        
-
-
-
+                process_error(f"Unsupported input format: {input_format}")
+        except Exception as e:
+            process_exception(f"Error in conversion: {str(e)}")
