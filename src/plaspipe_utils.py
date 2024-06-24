@@ -100,14 +100,83 @@ def gunzip_FASTA(in_file_path, out_file_path):
         with open(out_file_path, 'w') as out_file:
             SeqIO.write(records, out_file, 'fasta')
 
-def create_directory(directory_path):
+
+
+#verify the input fasta and gfa
+def verify_input_file(gfa_path, fasta_path):
     """
-    Create a directory if it doesn't exist.
+    Verify that at least one input file is provided and is not empty
 
     Args:
-        directory_path (str): Path to the directory.
+        gfa_path (str): Path to the GFA file
+        fasta_path (str): Path to the FASTA file
+
+    Raises:
+        ValueError: If no input file is provided or if all provided files are empty
     """
+    if not gfa_path and not fasta_path:
+        process_error("No input file provided. You need to provide at least one input file (GFA or FASTA)")
+
+    files_to_check = []
+    if gfa_path:
+        files_to_check.append(("GFA", gfa_path))
+    if fasta_path:
+        files_to_check.append(("FASTA", fasta_path))
+
+    non_empty_files = []
+    for file_type, file_path in files_to_check:
+        try:
+            check_file(file_path)
+            if os.path.getsize(file_path) > 0:
+                non_empty_files.append(file_type)
+        except Exception as e:
+            logging.error(f"Error checking {file_type} file {file_path}: {e}")
+
+    if not non_empty_files:
+        process_error("All provided input files are empty. At least one file must be non-empty")
+
+    logging.info(f"Valid input files: {', '.join(non_empty_files)}")
+
+
+
+
+def create_directory(output_path, prefix):
+    """
+    Create a new path using the current working directory and a prefix if the output_path is None.
+    Ensure the directory exists.
+
+    Args:
+        output_path (str): The original output path. If None, a new path will be generated.
+        prefix (str): The prefix to use for the generated path.
+
+    Returns:
+        str: The original output path if not None, or a newly generated path.
+    """
+    if output_path is None:
+        current_dir = "C:/Users/user/Desktop/Bioinformatic_pipeline/out"
+        output_path = os.path.join(current_dir, f"{prefix}_output")
+    
     try:
-        os.makedirs(directory_path, exist_ok=True)
+        os.makedirs(output_path, exist_ok=True)
     except OSError as e:
-        process_exception(f"Error creating directory '{directory_path}': {e}")
+        logging.error(f"Error creating directory '{output_path}': {e}")
+        raise
+
+    return output_path
+
+
+def check_gfa_input(class_input_format, bin_input_format, gfa_path):
+    """
+    Check if one of the input files is a GFA file and gfa_path is None.
+    Raise an error if this condition is met.
+    
+    :param input_files: List of input file paths
+    :param gfa_path: Path to the GFA file (can be None)
+    """
+
+
+    if (class_input_format.lower() == 'gfa' or bin_input_format.lower() == 'gfa') and gfa_path is None:
+        error_message = "one of the tools need a gfa file, but gfa_file is None. Please provide a valid gfa_path"
+        process_error(error_message)
+
+
