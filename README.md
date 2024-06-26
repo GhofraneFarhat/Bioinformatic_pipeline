@@ -2,8 +2,8 @@
 
 ## Table of Contents
 - [Installation](#installation)
-- [Pipeline Workflow](#Pipeline_Workflow)
-- [Pipeline Prerequisites](#pipeline_prerquisites)
+- [Pipeline Workflow](#PipelineWorkflow)
+- [Pipeline Prerequisites](#PipelinePrerequisites)
 - [Usage](#Usage)
 
 
