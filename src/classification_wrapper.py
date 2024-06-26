@@ -75,6 +75,7 @@ class ClassificationWrapper:
 
             #check the converted file 
             check_file(self.input_classif_converted)
+            logging.info(f'Converted input file: {self.input_classif_converted}')
             print(f'Converted input file: {self.input_classif_converted}')
 
             

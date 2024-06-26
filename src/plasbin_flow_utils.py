@@ -19,7 +19,7 @@ def generate_content_gc_file(method_configuration, gfa_file):
     input_file = os.path.join (binning_outdir,'plasbin_flow_sample.txt')
 
     #gzip the gfa file for the txt file
-    gfa_path = gzip_file(gfa_file)
+    gfa_path = gzip_file(gfa_file, binning_outdir)
 
     #generate the input file for generate for the gc content
     generate_input_file(input_file, sample_name, gfa_path)
@@ -48,7 +48,7 @@ def generate_input_file(output_file, sample = 'ABCD', gfa_path = ''):
         # Écrire le nom d'échantillon et le chemin GFA dans le fichier
         f.write(f'{sample},{gfa_path}\n')
 
-def gzip_file(file_path):
+def gzip_file(file_path, binning_outdir = ""):
     """
     Gzips the given file and creates a new file with '.gz' extension.
     
@@ -59,7 +59,7 @@ def gzip_file(file_path):
     directory, file_name = os.path.split(file_path)
     
     # Create the gzipped file path
-    gzipped_file_path = os.path.join(directory, file_name + '.gz')
+    gzipped_file_path = os.path.join(binning_outdir, file_name + '.gz')
     
     # Open the input file in binary mode
     with open(file_path, 'rb') as input_file:

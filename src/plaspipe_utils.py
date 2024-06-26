@@ -1,6 +1,8 @@
 import os
 import logging
 import sys
+import gzip
+import shutil
 
 def csv_to_tsv(csv_file_path):
     """

@@ -88,6 +88,7 @@ def get_input_file(method_config):
 
     #unzip the gfa file
     try:
+        logging.info(f"Processing GFA file: {gfa_path}")
         if gfa_path and gfa_path.endswith('.gz'):
             gfa_path = gunzip_GFA(gfa_path, gun_gfa_path)
     except Exception as e:
@@ -96,6 +97,7 @@ def get_input_file(method_config):
 
     #unzip the fasta file
     try:
+        logging.info(f"Processing FASTA file: {fasta_path}")
         if fasta_path and fasta_path.endswith('.gz'):
             fasta_path = gunzip_FASTA(fasta_path, gun_fasta_path)
     except Exception as e:
