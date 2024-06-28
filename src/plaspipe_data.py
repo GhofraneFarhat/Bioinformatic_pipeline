@@ -168,7 +168,7 @@ class PipelineData:
         Update pipeline data from classification CSV file
         """
         try:
-            next(classification_result)  # Skip the header row
+            #next(classification_result)  # Skip the header row
             for line in classification_result:
                 contig_name = line['contig_name']
                 plasmid_score = float(line['plasmid_score'])

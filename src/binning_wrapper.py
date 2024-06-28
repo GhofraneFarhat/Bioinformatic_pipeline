@@ -10,6 +10,7 @@ from .plaspipe_utils import process_exception
 from .plaspipe_utils import process_error
 from .plaspipe_utils import create_directory
 from .plaspipe_utils import check_file
+from .plaspipe_utils import log_file_creation
 
 from .tool_command import get_command
 from .tool_conversion import run_conversion
@@ -71,7 +72,7 @@ class BinningWrapper:
             bin_format = self.method_configuration['input_format']
             bin_tool_name = self.method_configuration['name']
             version = self.method_configuration['version']
-            output_format = self.method_configuration['output_format']
+            
 
             self.input_bin_converted = self.conversion(bin_format, bin_tool_name)
 
@@ -79,9 +80,9 @@ class BinningWrapper:
             check_file(self.input_bin_converted)
             print(f'Converted input file for binning: {self.input_bin_converted}')
 
-            output_binning = os.path.join(self.binning_dir, f"{self.prefix}_{bin_tool_name}_{version}.{output_format}")
+            output_binning = os.path.join(self.binning_dir, f"{self.prefix}_{bin_tool_name}_{version}")
              
-
+            log_file_creation('binning_tool_result', output_binning)
             full_command = get_command(self.method_configuration, self.input_bin_converted, output_binning, self.classification_result_csv)
 
             subprocess.run(full_command, shell=False, check=True)
@@ -107,6 +108,7 @@ class BinningWrapper:
             
             run_conversion(bin_tool_name, version, file_path, csv_file)
             print(f'CSV file created: {csv_file}')
+            log_file_creation('binning_pipeline_result', csv_file)
             return csv_file
         except Exception as e:
             process_exception(f"Error converting to CSV: {str(e)}")
@@ -148,6 +150,7 @@ class BinningWrapper:
                     return self.fasta_path
                 elif self.gfa_path:
                     write_GFA_to_FASTA(self.gfa_path, output_bin_file, self.gzipped_gfa, self.gzipped_fasta)
+                    log_file_creation('binning_tool_input', output_bin_file)
                     return output_bin_file
                 else:
                     process_error("Neither GFA nor FASTA file provided as input.")

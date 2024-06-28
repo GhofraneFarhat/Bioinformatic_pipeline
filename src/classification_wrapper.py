@@ -10,6 +10,7 @@ from .plaspipe_utils import process_exception
 from .plaspipe_utils import process_error
 from .plaspipe_utils import create_directory
 from .plaspipe_utils import check_file
+from .plaspipe_utils import log_file_creation
 
 from .tool_command import get_command
 from .tool_conversion import run_conversion
@@ -66,8 +67,9 @@ class ClassificationWrapper:
             class_format = self.method_configuration['input_format']
             class_tool_name = self.method_configuration['name']
             version = self.method_configuration['version']
-            #output_format = self.method_configuration['output_format']
+            
 
+            #need to fix it
             tool_directory = 'C:/Users/user/Desktop/Bioinformatic_pipeline/plASgraph'
             os.chdir(tool_directory)
 
@@ -85,6 +87,7 @@ class ClassificationWrapper:
 
             subprocess.run(full_command, shell=False, check=True)
 
+            log_file_creation('classifcation_tool_result', output_classification)
             return output_classification
 
         except subprocess.CalledProcessError as e:
@@ -109,6 +112,7 @@ class ClassificationWrapper:
             
             run_conversion(class_tool_name, version, file_path, csv_file)
             print(f'CSV file created: {csv_file}')
+            log_file_creation('classifcation_pipeline_result', csv_file)
             return csv_file
         except Exception as e:
             process_exception(f"Error converting to CSV: {str(e)}")
@@ -157,6 +161,7 @@ class ClassificationWrapper:
                     return self.fasta_path
                 elif self.gfa_path:
                     write_GFA_to_FASTA(self.gfa_path, output_classif_file, self.gzipped_gfa, self.gzipped_fasta, sep=sep)
+                    log_file_creation('classification_tool_input', output_classif_file)
                     return output_classif_file
                 else:
                     process_error("Neither GFA nor FASTA file provided as input.")

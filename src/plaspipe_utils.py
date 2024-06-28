@@ -182,3 +182,40 @@ def check_gfa_input(class_input_format, bin_input_format, gfa_path):
         process_error(error_message)
 
 
+def process_file(msg):
+    process_error(f"FileNotFoundError: The file {file} was not found.")
+    print(f'FILENOTFOUND\t{msg}', file=sys.stderr)
+    sys.exit(1)
+
+def exist_file(file):
+    if not os.path.isfile(file):
+        raise FileNotFoundError(f"YAML file '{file}' does not exist.")
+
+def verif_file(file, format):
+    if not file.endswith(format):
+        raise ValueError(f"Invalid user file '{file}'. Expected a {format} file.")
+
+# logger.py
+
+import logging
+
+# Setup logging
+def setup_logging(log_dir):
+    # Ensure the directory for the log file exists
+    
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    logging.basicConfig(
+        filename='plaspipe.log',
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+def log_file_creation(file_type, file_path):
+    # Create the log entry
+    log_entry = f"{file_type}: {file_path}"
+    
+    # Log the entry using logging.info
+    logging.info(log_entry)

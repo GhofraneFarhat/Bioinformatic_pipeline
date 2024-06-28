@@ -17,36 +17,60 @@ from .plaspipe_utils import gunzip_GFA
 from .plaspipe_utils import create_directory
 from .plaspipe_utils import verify_input_file
 from .plaspipe_utils import check_gfa_input
+from .plaspipe_utils import process_file
+from .plaspipe_utils import verif_file
+from .plaspipe_utils import exist_file
+from .plaspipe_utils import setup_logging 
+from .plaspipe_utils import log_file_creation
 
 
 from .plaspipe_data import PipelineData
 
 
 
-def parse_arguments():
+import os
+import argparse
 
+import os
+import argparse
+
+def parse_arguments():
     """
     Read arguments from the command line.
-    Returns: args (list): List of arguments.
+    Returns:
+        args (Namespace): Parsed arguments.
     """
 
-    # Create the argument parser
-    parser = argparse.ArgumentParser(description='Pipeline for bioinformatic tools (classification and binning tools for plasmid analysis')
-    parser.add_argument('user_file', type=str, help='Path to the YAML file provided by the user')
-    parser.add_argument('pipeline_output', type=str, help='File to save contigs dict and bins dict (pipeline output)')
-    args = parser.parse_args()
+    try:
+        # Create the argument parser
+        parser = argparse.ArgumentParser(description='Pipeline for bioinformatic tools (classification and binning tools for plasmid analysis')
 
-    # Verify the number of arguments
-    if len(sys.argv) != 3:
-        process_exception("Invalid number of arguments. Usage: python script.py user_file.yaml output_file.txt")
+        # Add optional arguments with flags
+        parser.add_argument('-yf', '--user_file', type=str, required=True, help='Path to the YAML file provided by the user')
+        #parser.add_argument('-out', '--pipeline_output', type=str, required=True, help='File to save contigs dict and bins dict (pipeline output)')
 
-    # Verify the user_file is a YAML file
-    if not args.user_file.endswith('.yaml'):
-        process_exception(f"Invalid user file '{args.user_file}'. Expected a YAML file.")
+        # Parse the arguments
+        args = parser.parse_args()
+
+        # Verify the user_file is a YAML file
+        verif_file(args.user_file, '.yaml')
+
+        # Check if the YAML file exists
+        exist_file(args.user_file)
+
+        # Check if the output directory exists
+        #exist_file(args.pipeline_output)
+
+        return args
+
+    except argparse.ArgumentError as ae:
+        process_error(f"Argument parsing error: {ae}")
+        sys.exit(1)
+    except argparse.ArgumentTypeError as ate:
+        process_error(f"Argument type error: {ate}")
+        sys.exit(1)
 
 
-
-    return args
 
 
 # the yaml file, from the user need some changes
@@ -62,13 +86,15 @@ def load_yaml(file):
 
     try:
         with open(file, 'r') as yaml_file:
-            
             configs = yaml.safe_load(yaml_file)
         if not configs:
-            process_exception(f'YAML file {file} is empty.')
+            raise ValueError(f'YAML file {file} is empty.')
         return configs
-    except Exception as e:
-        process_exception(f'Error loading YAML file {file}: {e}')
+    except FileNotFoundError as f:
+        process_file(f"The file is not found: {f}")
+
+
+
 
 
 def get_input_file(method_config):
@@ -84,7 +110,8 @@ def get_input_file(method_config):
     gfa_path = method_config['input']['path_to_input_gfa']
     fasta_path = method_config['input']['path_to_input_fasta']
     print(f"this is my gfa file {gfa_path}")
-
+    log_file_creation('gfa_path', gfa_path)
+    log_file_creation('fasta_path', fasta_path)
 
     #unzip the gfa file
     try:
@@ -153,8 +180,7 @@ def get_pipeline_configs(method_configs):
     bin_tool_name = method_configs['binning']['name']
     bin_tool_version = method_configs['binning']['version']
     bin_input_format = method_configs['binning']['input_format']
-    pipeline_configs.extend([class_tool_name, class_tool_version, class_input_format,
-                             bin_tool_name, bin_tool_version, bin_input_format])
+    pipeline_configs.extend([class_tool_name, class_tool_version, class_input_format, bin_tool_name, bin_tool_version, bin_input_format])
 
     # Extract output directory for the pipeline
     out_dir = method_configs['outdir_pipeline']
@@ -164,17 +190,17 @@ def get_pipeline_configs(method_configs):
 
 
 #the function to generate the pipeline output file of the pipeline
-def generate_output_file(pipeline_data, pipeline_output_file, out_dir, prefix):
+import csv
+
+def generate_output_files(pipeline_data, out_dir, prefix):
 
     """
-    Generate the pipeline output file
+    Generate the pipeline output files
 
     Args:
         pipeline_data (PipelineData): Instance of the PipelineData class
-        pipeline_output_file (str): Name of the output file of the pipeline
-        out_dir (str): Directory to save the output file
+        out_dir (str): Directory to save the output files
     """
-
 
     # Create the directory if it doesn't exist
     out_dir = create_directory(out_dir, prefix) 
@@ -183,28 +209,37 @@ def generate_output_file(pipeline_data, pipeline_output_file, out_dir, prefix):
     contigs = pipeline_data.get_contigs()
     bins = pipeline_data.get_bins()
 
-    #the path to the file result of the pipeline
-    output_file = os.path.join(out_dir, pipeline_output_file)
+    # Define the paths to the output files
+    binning_output_file = os.path.join(out_dir, "binning_tool_output.csv")
+    classification_output_file = os.path.join(out_dir, "classification_tool_output.csv")
 
-    #write in the file
-    with open(output_file, "w") as f:
-        f.write("Contigs:\n")
+    # Write the contigs to a CSV file
+    with open(classification_output_file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Contig ID", "Sequence"])
         for contig_id, sequence in contigs.items():
-            f.write(f"{contig_id}: {sequence}\n")
+            writer.writerow([contig_id, sequence])
 
-        f.write("\nBins:\n")
+    log_file_creation("classification_output_file", classification_output_file)
+
+    # Write the bins to a CSV file
+    with open(binning_output_file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Bin ID", "Contig Names"])
         for bin_id, contig_names in bins.items():
-            f.write(f"{bin_id}: {contig_names}\n")
+            writer.writerow([bin_id, ', '.join(contig_names)])
 
-    
-    print(f"Results saved to {output_file}")
+    log_file_creation("binning_output_file", binning_output_file)
+
+    print(f"Binning results saved to {binning_output_file}")
+    print(f"Classification results saved to {classification_output_file}")
 
 
 def main():
     try:
         args = parse_arguments()
         method_configs = load_yaml(args.user_file)
-
+        setup_logging(method_configs['outdir_pipeline'])
         # Get the pipeline input files
         input_gfa, input_fasta = get_input_file(method_configs)
 
@@ -226,7 +261,7 @@ def main():
             plaspipe_data = run_plaspipe_data(method_configs, prefix, class_tool_name, class_tool_version, bin_tool_name, bin_tool_version, input_gfa, input_fasta, classification_dir, binning_dir)
 
             # Generate the pipeline output file
-            generate_output_file(plaspipe_data, args.pipeline_output, out_dir, prefix)
+            generate_output_files(plaspipe_data, out_dir, prefix)
 
         except ValueError as ve:
             process_error(str(ve))
