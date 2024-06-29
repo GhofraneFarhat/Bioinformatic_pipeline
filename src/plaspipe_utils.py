@@ -4,6 +4,11 @@ import sys
 import gzip
 import shutil
 
+class CustomException(Exception):
+    def __init__(self, msg):
+        # Call the base class constructor with the custom message
+        super().__init__(msg)
+
 def csv_to_tsv(csv_file_path):
     """
     Convert a CSV file to a TSV file
@@ -207,7 +212,7 @@ def setup_logging(log_dir):
         os.makedirs(log_dir)
 
     logging.basicConfig(
-        filename='plaspipe.log',
+        filename='plaspipes.log',
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
@@ -219,3 +224,61 @@ def log_file_creation(file_type, file_path):
     
     # Log the entry using logging.info
     logging.info(log_entry)
+
+
+def get_output_directory(method_config):
+    """Extract output directory and prefix from method_config"""
+    outdir_pipeline = method_config['outdir_pipeline']
+    prefix = method_config['prefix']
+    return create_directory(outdir_pipeline, prefix), prefix
+
+def get_gunzipped_paths(outdir_pipeline, prefix):
+    """Generate paths for gunzipped files"""
+    return (
+        os.path.join(outdir_pipeline, f"{prefix}_gunzipped_gfa.gfa"),
+        os.path.join(outdir_pipeline, f"{prefix}_gunzipped_fasta.fasta")
+    )
+
+def get_input_paths(method_config):
+    """Extract input file paths from method_config"""
+    return (
+        method_config['input']['path_to_input_gfa'],
+        method_config['input']['path_to_input_fasta']
+    )
+
+def log_input_files(gfa_path, fasta_path):
+    """Log input file paths"""
+    logging.info(f"GFA file: {gfa_path}")
+    logging.info(f"FASTA file: {fasta_path}")
+    log_file_creation('gfa_path', gfa_path)
+    log_file_creation('fasta_path', fasta_path)
+
+def process_gfa_file(gfa_path, gun_gfa_path):
+    """Process GFA file, unzipping if necessary"""
+    if not gfa_path:
+        return None
+    if not os.path.exists(gfa_path):
+        raise FileNotFoundError(f"GFA file not found: {gfa_path}")
+    if gfa_path.endswith('.gz'):
+        try:
+            return gunzip_GFA(gfa_path, gun_gfa_path)
+        except IOError as e:
+            raise IOError(f"Error unzipping GFA file {gfa_path}: {e}")
+    elif not gfa_path.endswith('.gfa'):
+        raise ValueError(f"Invalid GFA file format: {gfa_path}")
+    return gfa_path
+
+def process_fasta_file(fasta_path, gun_fasta_path):
+    """Process FASTA file, unzipping if necessary"""
+    if not fasta_path:
+        return None
+    if not os.path.exists(fasta_path):
+        raise FileNotFoundError(f"FASTA file not found: {fasta_path}")
+    if fasta_path.endswith('.gz'):
+        try:
+            return gunzip_FASTA(fasta_path, gun_fasta_path)
+        except IOError as e:
+            raise IOError(f"Error unzipping FASTA file {fasta_path}: {e}")
+    elif not fasta_path.endswith('.fasta'):
+        raise ValueError(f"Invalid FASTA file format: {fasta_path}")
+    return fasta_path

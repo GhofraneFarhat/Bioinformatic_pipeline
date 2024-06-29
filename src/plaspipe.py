@@ -22,7 +22,12 @@ from .plaspipe_utils import verif_file
 from .plaspipe_utils import exist_file
 from .plaspipe_utils import setup_logging 
 from .plaspipe_utils import log_file_creation
-
+from .plaspipe_utils import get_output_directory
+from .plaspipe_utils import get_gunzipped_paths
+from .plaspipe_utils import get_input_paths
+from .plaspipe_utils import log_input_files
+from .plaspipe_utils import process_fasta_file
+from .plaspipe_utils import process_gfa_file
 
 from .plaspipe_data import PipelineData
 
@@ -94,47 +99,33 @@ def load_yaml(file):
         process_file(f"The file is not found: {f}")
 
 
-
-
-
 def get_input_file(method_config):
+    """
+    Process and validate input files.
 
-    outdir_pipeline = method_config['outdir_pipeline']
-    prefix = method_config['prefix']
+    Args:
+        method_config (dict): Configuration dictionary.
 
-    pipeline_output_path = create_directory(outdir_pipeline, prefix)
+    Returns:
+        tuple: Processed GFA and FASTA file paths.
 
-    gun_gfa_path = os.path.join(pipeline_output_path, "gunzipped_gfa.gfa") 
-    gun_fasta_path = os.path.join(pipeline_output_path, "gunzipped_fasta.fasta")  
+    Raises:
+        ValueError: If input files are invalid or missing.
+        IOError: If there are issues with file operations.
+    """
+    outdir_pipeline, prefix = get_output_directory(method_config)
+    gun_gfa_path, gun_fasta_path = get_gunzipped_paths(outdir_pipeline, prefix)
+    gfa_path, fasta_path = get_input_paths(method_config)
 
-    gfa_path = method_config['input']['path_to_input_gfa']
-    fasta_path = method_config['input']['path_to_input_fasta']
-    print(f"this is my gfa file {gfa_path}")
-    log_file_creation('gfa_path', gfa_path)
-    log_file_creation('fasta_path', fasta_path)
+    log_input_files(gfa_path, fasta_path)
 
-    #unzip the gfa file
-    try:
-        logging.info(f"Processing GFA file: {gfa_path}")
-        if gfa_path and gfa_path.endswith('.gz'):
-            gfa_path = gunzip_GFA(gfa_path, gun_gfa_path)
-    except Exception as e:
-        logging.error(f"Error unzipping GFA file {gfa_path}: {e}")
+    gfa_path = process_gfa_file(gfa_path, gun_gfa_path)
+    fasta_path = process_fasta_file(fasta_path, gun_fasta_path)
 
-
-    #unzip the fasta file
-    try:
-        logging.info(f"Processing FASTA file: {fasta_path}")
-        if fasta_path and fasta_path.endswith('.gz'):
-            fasta_path = gunzip_FASTA(fasta_path, gun_fasta_path)
-    except Exception as e:
-        logging.error(f"Error unzipping FASTA file {fasta_path}: {e}")
-
-    #chech the input files
     verify_input_file(gfa_path, fasta_path)
 
-
     return gfa_path, fasta_path
+
 
 
 def run_plaspipe_data(method_configs, prefix, class_tool_name, class_tool_version, bin_tool_name, bin_tool_version, input_gfa, input_fasta, classification_dir, binning_dir):
@@ -189,50 +180,59 @@ def get_pipeline_configs(method_configs):
     return pipeline_configs
 
 
-#the function to generate the pipeline output file of the pipeline
-import csv
-
 def generate_output_files(pipeline_data, out_dir, prefix):
-
     """
     Generate the pipeline output files
 
     Args:
         pipeline_data (PipelineData): Instance of the PipelineData class
         out_dir (str): Directory to save the output files
+        prefix (str): Prefix for output files
+
+    Raises:
+        IOError: If there are issues with file operations.
     """
+    try:
+        # Create the directory if it doesn't exist
+        out_dir = create_directory(out_dir, prefix)
 
-    # Create the directory if it doesn't exist
-    out_dir = create_directory(out_dir, prefix) 
+        # Get the contigs and bins from the PipelineData instance
+        contigs = pipeline_data.get_contigs()
+        bins = pipeline_data.get_bins()
 
-    # Get the contigs and bins from the PipelineData instance
-    contigs = pipeline_data.get_contigs()
-    bins = pipeline_data.get_bins()
+        # Define the paths to the output files
+        binning_output_file = os.path.join(out_dir, f"{prefix}_binning_tool_output.csv")
+        classification_output_file = os.path.join(out_dir, f"{prefix}_classification_tool_output.csv")
 
-    # Define the paths to the output files
-    binning_output_file = os.path.join(out_dir, "binning_tool_output.csv")
-    classification_output_file = os.path.join(out_dir, "classification_tool_output.csv")
+        # Write the contigs to a CSV file
+        try:
+            with open(classification_output_file, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(["Contig ID", "Sequence"])
+                for contig_id, sequence in contigs.items():
+                    writer.writerow([contig_id, sequence])
+            log_file_creation("classification_output_file", classification_output_file)
+        except IOError as e:
+            raise IOError(f"Error writing classification output file: {e}")
 
-    # Write the contigs to a CSV file
-    with open(classification_output_file, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["Contig ID", "Sequence"])
-        for contig_id, sequence in contigs.items():
-            writer.writerow([contig_id, sequence])
+        # Write the bins to a CSV file
+        try:
+            with open(binning_output_file, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(["Bin ID", "Contig Names"])
+                for bin_id, contig_names in bins.items():
+                    writer.writerow([bin_id, ', '.join(contig_names)])
+            log_file_creation("binning_output_file", binning_output_file)
+        except IOError as e:
+            raise IOError(f"Error writing binning output file: {e}")
 
-    log_file_creation("classification_output_file", classification_output_file)
+        logging.info(f"Binning results saved to {binning_output_file}")
+        logging.info(f"Classification results saved to {classification_output_file}")
 
-    # Write the bins to a CSV file
-    with open(binning_output_file, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["Bin ID", "Contig Names"])
-        for bin_id, contig_names in bins.items():
-            writer.writerow([bin_id, ', '.join(contig_names)])
+    except Exception as e:
+        process_error(f"Error generating output files: {e}")
+        
 
-    log_file_creation("binning_output_file", binning_output_file)
-
-    print(f"Binning results saved to {binning_output_file}")
-    print(f"Classification results saved to {classification_output_file}")
 
 
 def main():
