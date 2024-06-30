@@ -168,21 +168,28 @@ class PipelineData:
         Update pipeline data from classification CSV file
         """
         try:
-            #next(classification_result)  # Skip the header row
             for line in classification_result:
-                contig_name = line['contig_name']
-                plasmid_score = float(line['plasmid_score'])
-                chromosome_score = float(line['chromosome_score'])
+                contig_name = line.get('contig_name')
+                if not contig_name:
+                    process_warning(f"Skipping line with missing contig name: {line}")
+                    continue
+
+                try:
+                    plasmid_score = float(line.get('plasmid_score', 0))
+                    chromosome_score = float(line.get('chromosome_score', 0))
+                except ValueError:
+                    process_warning(f"Invalid score values for contig {contig_name}. Skipping.")
+                    continue
+
                 contig_class = {
                     'plasmid_score': plasmid_score,
                     'chromosome_score': chromosome_score
                 }
+
                 self.set_contigs(self.tool_name, self.tool_version, contig_name, contig_class)
-        
         except KeyError as e:
             process_error(f"Missing required column in classification CSV: {e}")
-        except ValueError as e:
-            process_error(f"Invalid score value in classification CSV: {e}")
+
 
 
 
@@ -193,17 +200,27 @@ class PipelineData:
         try:
             next(binning_result)  # Skip the header row
             for line in binning_result:
-                contig_names = line['Contig']
-                bin_id = line['Bin']
+                contig_names = line.get('Contig')
+                bin_id = line.get('Bin')
+            
+                if not contig_names or not bin_id:
+                    process_warning(f"Skipping line with missing Contig or Bin: {line}")
+                    continue
+            
+                # Get flow value, default to 0 if not present
+                flow = line.get('Flow', '0')
+            
+
+            
                 contig_list = self.get_bin_contig(bin_id)
                 if contig_list is None:
-                    self.set_bins(bin_id, [contig_names])
+                    self.set_bins(bin_id, [contig_names], flow)
                 else:
                     contig_list.append(contig_names)
-                    self.set_bins(bin_id, contig_list)
+                    self.set_bins(bin_id, contig_list, flow)
 
         except KeyError as e:
-            process_error(f"Missing required column in binning CSV: {e}")
+            process_error(f"Missing required column in binning CSV file: {e}")
 
 
     #setter and getter
@@ -211,17 +228,48 @@ class PipelineData:
         """
         Update the dict of contigs after the classification method
         """
+        if not isinstance(contig_name, str):
+            process_warning(f"Invalid contig name type: {type(contig_name)}. Expected string.")
+            return
+
+        if not isinstance(contig_class, dict):
+            process_warning(f"Invalid contig class type: {type(contig_class)}. Expected dictionary.")
+            return
+
         tool_key = (tool_name, tool_version)
         if tool_key not in self.contigs:
             self.contigs[tool_key] = {}
+    
         self.contigs[tool_key][contig_name] = {'contig_class': contig_class}
 
-
-    def set_bins(self, bin_id, contigs):
+    def set_bins(self, bin_id, contigs, flow=0):
         """
         Update the dict of bins after the binning method
+    
+        Args:
+            bin_id (str): The identifier for the bin
+            contigs (list): List of contig names in the bin
+            flow (int, optional): Flow value for the bin. Defaults to 0.
         """
-        self.bins[bin_id] = contigs
+        if not isinstance(bin_id, str):
+            process_warning(f"Invalid bin ID type: {type(bin_id)}. Expected string.")
+            return
+
+        if not isinstance(contigs, list):
+            process_warning(f"Invalid contigs type: {type(contigs)}. Expected list.")
+            return
+
+        if not isinstance(flow, float):
+            try:
+                flow = float(flow)
+            except ValueError:
+                process_warning(f"Invalid flow value: {flow}. Setting to 0.")
+                flow = 0
+
+        self.bins[bin_id] = {
+            'contigs': contigs,
+            'flow': flow
+        }
 
     def get_contigs(self):
         """

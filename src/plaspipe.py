@@ -8,6 +8,7 @@ import sys
 import shutil
 import logging
 from Bio import SeqIO
+import csv
 
 from .plaspipe_utils import process_exception
 from .plaspipe_utils import process_error
@@ -219,9 +220,13 @@ def generate_output_files(pipeline_data, out_dir, prefix):
         try:
             with open(binning_output_file, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(["Bin ID", "Contig Names"])
-                for bin_id, contig_names in bins.items():
-                    writer.writerow([bin_id, ', '.join(contig_names)])
+                writer.writerow(["Bin ID", "Copy_number", "Contig Names"])
+                for bin_id, bin_data in bins.items():
+                    writer.writerow([
+                        bin_id, 
+                        str(bin_data['flow']),  # Convert flow to string
+                        ', '.join(bin_data['contigs'])
+                    ])
             log_file_creation("binning_output_file", binning_output_file)
         except IOError as e:
             raise IOError(f"Error writing binning output file: {e}")

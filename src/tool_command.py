@@ -7,6 +7,7 @@ from .plaspipe_utils import process_exception
 from .plaspipe_utils import process_error
 
 import os
+import logging
 
 def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
     """
@@ -31,7 +32,9 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
         script_name = method_config['path_to_script']
         tool_parameters = method_config['parameters']
 
-        print(f'The plasmid score file is {plasmid_scores_file}')
+        logging.info(f"Generating command for {tool_name} version {tool_version}")
+        logging.debug(f"Input file: {input_file}")
+        logging.debug(f"Output file: {output_file}")
 
         # Generate command based on tool and version
         if tool_name == "plASgraph" and tool_version == "1.0.0":
@@ -61,37 +64,37 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             # Generate GC content file
             try:
                 generate_content_gc_file(method_config, input_file)
+                gc_content_file = os.path.join(method_config['plasbin_out_dir'], method_config['sample_name'] + ".gc.tsv")
+                check_file(gc_content_file)  # Verify the file was created successfully
+                logging.info(f"GC content file is saved to {gc_content_file}")
             except Exception as e:
-                process_error(f"Error generating GC content file: {e}")
+                process_error(f"Error generating or accessing GC content file: {e}")
 
-            gc_content_file = os.path.join(method_config['plasbin_out_dir'], method_config['sample_name'] + ".gc.tsv")
-
-
-            print(f'GC content file: {gc_content_file}')
 
             # Gzip input file
             try:
                 input_file = gzip_file(input_file)
+                check_file(input_file)  # Verify the gzipped file exists
+                logging.info(f"Gzziped file {input_file}")
             except Exception as e:
                 process_error(f"Error gzipping input file: {e}")
 
-            print(f'Gzipped input file: {input_file}')
 
             # Convert CSV plasmid score file to TSV
             try:
                 classification_score_result = csv_to_tsv(plasmid_scores_file)
+                check_file(classification_score_result)  # Verify the converted file exists
             except Exception as e:
                 process_error(f"Error converting plasmid scores file to TSV: {e}")
 
-            print(f'Plasmid score file for plasbin_tool: {classification_score_result}')
 
-            log_file = method_config['log_file']
-
+            log_file = method_config.get('log_file', 'plasbin_flow.log')  # Provide a default log file name
+            
+            #get the command
             command = f'python {script_name} -ag {input_file} -gc {gc_content_file} -score {classification_score_result} -out_dir {path_to_outdir} -out_file {output_file} -log_file {log_file}'
+        
         else:
             raise ValueError(f"Unsupported tool: {tool_name} or version: {tool_version}")
-
-        print(f'Classification file result in CSV format: {plasmid_scores_file}')
 
         return command
 
