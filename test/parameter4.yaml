@@ -1,9 +1,9 @@
   ## Input Data
 input:
-  path_to_input_gfa: C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph\example_data\c_freundii_assembly.gfa
+  path_to_input_gfa: C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph2\example\SAMN15148288_Unicycler.gfa.gz
   path_to_input_fasta: #C:/Users/user/Desktop/run/input/output.fasta
 
-outdir_pipeline: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin
+outdir_pipeline: #C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin
 prefix: plasgraph_plasbin
 
 classification:
@@ -31,10 +31,10 @@ binning:
 
   plasbin_utils_script: C:\Users\user\Desktop\Bioinformatic_pipeline\PlasBin-flow\code\plasbin_utils.py
   plasbin_out_dir: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin
-  sample_name: exemple1
+  sample_name: exemple4
   plasbin_tmp_dir: C:\Users\user\Desktop\Bioinformatic_pipeline\out_gc
   gc_interval_file: 
-  log_file: C:\Users\user\Desktop\Bioinformatic_pipeline\test\exemple.log
+  log_file: C:\Users\user\Desktop\Bioinformatic_pipeline\test\test.log
 
 
 
