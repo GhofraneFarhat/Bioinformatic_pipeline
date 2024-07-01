@@ -63,9 +63,6 @@ class ClassificationWrapper:
             class_tool_name = self.method_configuration['name']
             version = self.method_configuration['version']
             
-            # Change to the tool directory
-            tool_directory = 'C:/Users/user/Desktop/Bioinformatic_pipeline/plASgraph'
-            os.chdir(tool_directory)
 
             self.input_classif_converted = self.conversion(class_format, class_tool_name)
             check_file(self.input_classif_converted)
