@@ -29,6 +29,7 @@ from .plaspipe_utils import get_input_paths
 from .plaspipe_utils import log_input_files
 from .plaspipe_utils import process_fasta_file
 from .plaspipe_utils import process_gfa_file
+from .plaspipe_utils import create_director
 
 from .plaspipe_data import PipelineData
 
@@ -194,16 +195,23 @@ def generate_output_files(pipeline_data, out_dir, prefix):
         IOError: If there are issues with file operations.
     """
     try:
+        if out_dir == None:
+            out_dir = "result_folder"
+
+        output_folder = out_dir
+        create_director([output_folder])
         # Create the directory if it doesn't exist
-        out_dir = create_directory(out_dir, prefix)
+        #out_dir = create_directory(out_dir, prefix)
 
         # Get the contigs and bins from the PipelineData instance
         contigs = pipeline_data.get_contigs()
         bins = pipeline_data.get_bins()
 
         # Define the paths to the output files
-        binning_output_file = os.path.join(out_dir, f"{prefix}_binning_tool_output.csv")
-        classification_output_file = os.path.join(out_dir, f"{prefix}_classification_tool_output.csv")
+        binning_output_file = os.path.join(output_folder, f"{prefix}_binning_tool_output.csv")
+        #binning_output_file = os.path.join(out_dir, f"{prefix}_binning_tool_output.csv")
+        classification_output_file = os.path.join(output_folder, f"{prefix}_classification_tool_output.csv")
+        #classification_output_file = os.path.join(out_dir, f"{prefix}_classification_tool_output.csv")
 
         # Write the contigs to a CSV file
         try:

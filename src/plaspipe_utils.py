@@ -282,3 +282,16 @@ def process_fasta_file(fasta_path, gun_fasta_path):
     elif not fasta_path.endswith('.fasta'):
         raise ValueError(f"Invalid FASTA file format: {fasta_path}")
     return fasta_path
+
+
+""" Files and directories function """
+        
+def clean_files(files2clean):
+    for in_file in files2clean:
+        if os.path.isfile(in_file):
+            os.remove(in_file)
+
+def create_director(in_dir_list):
+    for in_dir in in_dir_list:
+        if not os.path.exists(in_dir):
+            os.makedirs(in_dir)
