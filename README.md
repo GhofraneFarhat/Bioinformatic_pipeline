@@ -113,11 +113,20 @@ binning:
 
 ```
 
+### Output files
+
+The result is written in csv files, one for the binning and for the classification.
+
 ## Plaspipe stages
 
 #### Input processing
 #### Classification
+
+The Classification Wrapper class is a key component of our pipeline. It is responsible for managing the input and output formats and running the classification tool.
+
 #### Binning
+
+The Binning Wrapper is is another core component of our pipeline, responsible for managing the input and output formats and running the binning tool.
 
 ## Usage
 
@@ -126,10 +135,9 @@ To process an input file, given the input files described above, the command pla
 ```python
 python src/plaspipe.py
        -yf parameter.yaml
-       -out output_file
 ```
 where 
 
 - ```parameter.yaml``` is the yaml file of plaspipe configuration
-- ```output_file``` is the file name for the output file
+
 
