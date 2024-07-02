@@ -140,4 +140,18 @@ where
 
 - ```parameter.yaml``` is the yaml file of plaspipe configuration
 
+## Gurobi Solver Dependency
+
+Plaspipe requires the Gurobi Solver (version 9.1.2 or higher) to run certain components.
+
+### Installation Instructions
+
+- **Step 1**: Download Gurobi from [Gurobi's official website](https://www.gurobi.com/downloads/).
+- **Step 2**: Follow the installation instructions provided by Gurobi for your operating system.
+- **Step 3**: Obtain a free academic license from [Gurobi Academic Program](https://www.gurobi.com/academia/academic-program-and-licenses/).
+- **Step 4**: Set up your Gurobi environment as per their instructions.
+
+Please ensure that Gurobi is properly installed and licensed before running Plaspipe if you want to use Plasbin or Plasbin-flow tools.
+
+
 
