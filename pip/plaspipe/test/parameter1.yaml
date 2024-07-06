@@ -1,0 +1,30 @@
+  ## Input Data
+input:
+  path_to_input_gfa: C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph2\example\SAMN15148288_SKESA.gfa.gz
+  path_to_input_fasta: #C:/Users/user/Desktop/run/input/output.fasta
+
+outdir_pipeline: C:\Users\user\Desktop\Bioinformatic_pipeline\out\graph_plASgraph2_2.0.0
+prefix: graph
+
+classification:
+  name: plASgraph2
+  version: 2.0.0
+  
+  input_format: gfa
+  output_format: csv
+  path_to_script: C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph2\src\plASgraph2_classify.py
+  parameters: C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph2\model\ESKAPEE_model
+
+
+  ## Output
+  output:
+    outdir_classification: C:\Users\user\Desktop\Bioinformatic_pipeline\out\graph_plASgraph2_2.0.0 #path to the folder of the classification tool output
+
+
+binning:
+  name: bin_tool
+  version: 1
+  input_format: GFA
+  output_format: csv
+  command: python C:/Users/user/Desktop/run/bin_tool/bin.py #command to run the tool 
+  parameters: tool_parameter
