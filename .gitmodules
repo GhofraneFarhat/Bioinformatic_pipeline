@@ -8,9 +8,6 @@
 	path = submodules/PlasBin-flow
 	url = https://github.com/cchauve/PlasBin-flow.git
 	branch = v1.0.2.2
-[submodule "bin_tool"]
-	path = bin_tool
-	url = https://github.com/GhofraneFarhat/bin_tool.git
 [submodule "classif_tool"]
 	path = submodules/classif_tool
 	url = https://github.com/GhofraneFarhat/classif_tool.git
