@@ -1,2 +1,0 @@
-sample,gfa
-exemple4,C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin\plasgraph_plasbin_gunzipped_gfa.gfa.gz
