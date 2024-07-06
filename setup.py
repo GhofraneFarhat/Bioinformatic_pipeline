@@ -38,7 +38,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     python_requires=">=3.10",
-    url='https://github.com/GhofraneFarhat/Plaspipe',
+    url='https://github.com/GhofraneFarhat/Bioinformatic_pipeline',
     classifiers=[
         'Programming Language :: Python :: 3.10',
         'License :: OSI Approved :: MIT License',
