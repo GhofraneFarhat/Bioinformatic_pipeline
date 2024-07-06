@@ -89,7 +89,10 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
 
 
             log_file = method_config.get('log_file', 'plasbin_flow.log')  # Provide a default log file name
-            
+            assembler = method_config.get('assembler', '')
+            seed_score = method_config.get('seed_score', '.gitmodules')
+            seed_len = method_config.get('seed_len', '')
+            gc_intervals = method_config.get('gc_interval_file', '')
             #get the command
             command = f'python {script_name} -ag {input_file} -gc {gc_content_file} -score {classification_score_result} -out_dir {path_to_outdir} -out_file {output_file} -log_file {log_file}'
         
