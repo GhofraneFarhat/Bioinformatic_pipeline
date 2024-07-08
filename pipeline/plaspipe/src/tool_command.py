@@ -1,5 +1,5 @@
 from .plasbin_flow_utils import generate_content_gc_file
-from .Plasbin_utils import generate_seed_contigs
+from .plasbin_utils import generate_seed_contigs
 from .plasbin_flow_utils import gzip_file
 
 from .plaspipe_utils import csv_to_tsv
