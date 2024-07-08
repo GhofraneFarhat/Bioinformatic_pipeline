@@ -295,3 +295,42 @@ def create_director(in_dir_list):
     for in_dir in in_dir_list:
         if not os.path.exists(in_dir):
             os.makedirs(in_dir)
+
+#return a default str
+def process_attribute(attr):
+    return "" if attr is None else attr
+
+#return a default float
+def process_attribute_float(attr):
+    return 0 if attr is None else attr
+
+def process_arguments(arg, default_arg):
+    # verify the lenth
+    arg = arg + [None] * (len(default_arg) - len(arg))
+    
+    # affect default values
+    processed_arg = [default if a is None else a for a, default in zip(arg, default_arg)]
+    
+    return processed_arg
+
+def absolute_path ():
+
+    dirname = os.path.dirname(__file__)
+    target_dir = "Bioinformatic_pipeline"
+
+    # Split the path into parts
+    path_parts = dirname.split(os.sep)
+
+    # Find the index of the target directory
+    try:
+        target_index = path_parts.index(target_dir)
+    except ValueError:
+        # If target directory is not found, return the original path
+        return dirname
+
+    # Join the parts of the path up to and including the target directory
+    base_path = os.sep.join(path_parts[:target_index+1])
+
+    return base_path
+
+
