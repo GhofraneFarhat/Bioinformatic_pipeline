@@ -16,3 +16,6 @@
 [submodule "submodules/plASgraph2"]
 	path = submodules/plASgraph2
 	url = https://github.com/cchauve/plASgraph2.git
+[submodule "submodules/PlasBin"]
+	path = submodules/PlasBin
+	url = https://github.com/cchauve/PlasBin.git
