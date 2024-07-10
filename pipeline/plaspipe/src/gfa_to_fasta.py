@@ -3,7 +3,6 @@ import subprocess
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from .plaspipe_utils import process_exception
 import sys
 
 # Mandatory fields in GFA contigs and links
