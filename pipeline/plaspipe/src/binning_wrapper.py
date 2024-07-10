@@ -11,6 +11,7 @@ from .plaspipe_utils import process_error
 from .plaspipe_utils import create_directory
 from .plaspipe_utils import check_file
 from .plaspipe_utils import log_file_creation
+from .plaspipe_utils import process_arguments
 
 from .tool_command import get_command
 from .tool_conversion import run_conversion
@@ -87,6 +88,25 @@ class BinningWrapper:
 
             subprocess.run(full_command, shell=False, check=True)
 
+
+            #Exception for Plasbin tool
+            if bin_tool_name == 'PlasBin' and version == '1.0.0':
+
+                #get the alpha parameter
+                alpha1 = self.method_configuration['alpha1']
+                alpha2 = self.method_configuration['alpha2']
+
+                #assign the default numbers
+                argument = [alpha1, alpha2]
+                default_arg = [1, 1]
+    
+                plasbin_argument = process_arguments(argument, default_arg)
+                alpha1, alpha2 = plasbin_argument
+                plasbin_dir = f"{alpha1}.{alpha2}"
+
+
+                output_binning = os.path.join (self.binning_dir, plasbin_dir, 'MILP/contig_chains.csv' )
+                
             return output_binning
 
         except subprocess.CalledProcessError as e:
@@ -106,6 +126,7 @@ class BinningWrapper:
             version = self.method_configuration['version']
             csv_file = os.path.join(self.binning_dir, f"{self.prefix}_{bin_tool_name}_{version}.csv")
             
+            print(f"here we are {csv_file}")
             run_conversion(bin_tool_name, version, file_path, csv_file)
             print(f'CSV file created: {csv_file}')
             log_file_creation('binning_pipeline_result', csv_file)
