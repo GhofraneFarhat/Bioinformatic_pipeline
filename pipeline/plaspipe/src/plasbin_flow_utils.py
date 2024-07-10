@@ -11,7 +11,7 @@ def generate_content_gc_file(method_configuration, gfa_file):
     binning_outdir = method_configuration['output']['outdir_binning']
     
     #script_path = method_configuration['plasbin_utils_script']
-    plasbin_utils_script = os.path.join(absolute_path(), 'submodules\PlasBin-flow\code\plasbin_utils.py')
+    plasbin_utils_script = os.path.join(absolute_path(), 'submodules/PlasBin-flow/code/plasbin_utils.py')
             
     out_dir = method_configuration.get('plasbin_out_dir', binning_outdir)
     tmp_dir = method_configuration.get('plasbin_tmp_dir', binning_outdir)

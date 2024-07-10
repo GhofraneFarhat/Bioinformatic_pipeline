@@ -43,7 +43,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
         if tool_name == "plASgraph" and tool_version == "1.0.0":
 
             #the script_path
-            plasgraph_script = os.path.join(absolute_path(), 'submodules\plASgraph\plASgraph.py')
+            plasgraph_script = os.path.join(absolute_path(), 'submodules/plASgraph/plASgraph.py')
             
             command = f'python {script_name} -i {input_file} -o {output_file}'
 
@@ -51,7 +51,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
         elif tool_name == "plASgraph2" and tool_version == "2.0.0":
 
             #the script_path
-            plasgraph2_script = os.path.join(absolute_path(), 'submodules\plASgraph2\src\plASgraph2_classify.py')
+            plasgraph2_script = os.path.join(absolute_path(), 'submodules/plASgraph2/src/plASgraph2_classify.py')
             
             command = f'python {plasgraph2_script} gfa {input_file} {tool_parameters} {output_file}'
 
@@ -62,13 +62,13 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
 
         elif tool_name == "classify" and tool_version == "1.0.0":
 
-            classify_script_name = os.path.join(absolute_path(), 'submodules\classify\classify.py')
+            classify_script_name = os.path.join(absolute_path(), 'submodules/classify/classify.py')
             
             command = f'python {classify_script_name} -i {input_file} -o {output_file}'
 
 
         elif tool_name == "bin_tool" and tool_version == "1.0.0":
-            classify_script_name = os.path.join(absolute_path(), 'submodules\bin_tool\bin.py')
+            classify_script_name = os.path.join(absolute_path(), 'submodules/bin_tool/bin.py')
             command = f'python {script_name} {input_file} {output_file}'
 
 
@@ -110,10 +110,10 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             gc_intervals = method_config['gc_interval_file']
 
             #the default values
-            default_gc_intervals = os.path.join(absolute_path(), 'submodules\PlasBin-flow\example\default\gc_intervals.txt')
+            default_gc_intervals = os.path.join(absolute_path(), 'submodules/PlasBin-flow/example/default/gc_intervals.txt')
             
             #the script_path
-            plasbin_flow_script = os.path.join(absolute_path(), 'submodules\PlasBin-flow\code\plasbin_flow.py')
+            plasbin_flow_script = os.path.join(absolute_path(), 'submodules/PlasBin-flow/code/plasbin_flow.py')
             
             #processing the attributes
             argument = [assembler, seed_score, seed_len, gc_intervals]
@@ -153,7 +153,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
                 process_error(f"Error generating or accessing seed contigs file: {e}")
 
             #the script_path
-            plasbin_script = os.path.join(absolute_path(), 'submodules\PlasBin\code\plasmids_iterative.py')
+            plasbin_script = os.path.join(absolute_path(), 'submodules/PlasBin/code/plasmids_iterative.py')
             
             command = f'python {plasbin_script} --ag {input_file} --map {mapping_file} --seeds {seed_contigs_file} --out {path_to_outdir}'
 

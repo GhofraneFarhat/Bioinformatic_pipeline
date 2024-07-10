@@ -12,7 +12,7 @@ def generate_seed_contigs(gfa_file, mapping_file, method_configuration):
     out_dir = method_configuration.get('plasbin_out_dir', binning_outdir)
 
     
-    seed_contigs_script = os.path.join(absolute_path(), 'submodules\PlasBin\code\generate_seeds.py')
+    seed_contigs_script = os.path.join(absolute_path(), 'submodules/PlasBin/code/generate_seeds.py')
        
 
     command = ["python", seed_contigs_script, "--ag", gfa_file, "--map", mapping_file, "--out", out_dir]
