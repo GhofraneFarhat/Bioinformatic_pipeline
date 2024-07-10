@@ -1,5 +1,6 @@
 from .plasbin_flow_utils import generate_content_gc_file
 from .plasbin_utils import generate_seed_contigs
+from .plasbin_utils import run_blast6
 from .plasbin_flow_utils import gzip_file
 
 from .plaspipe_utils import csv_to_tsv
@@ -8,10 +9,13 @@ from .plaspipe_utils import process_exception
 from .plaspipe_utils import process_error
 from .plaspipe_utils import process_arguments
 from .plaspipe_utils import absolute_path
+from .plaspipe_utils import conversion_gfa_fasta
+
 
 
 import os
 import logging
+import subprocess
 
 def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
     """
@@ -131,18 +135,40 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             path_to_outdir, output_file = os.path.split(output_file)
 
             mapping_file = method_config['mapping_file']
+            db_file = method_config['db_file']
             alpha1 = method_config['alpha1']
             alpha2 = method_config['alpha2']
             rmiter = method_config['rmiter']
 
             #assign default value
-            default_maping_file = os.path.join(absolute_path(), 'submodules/PlasBin/example/test/input/filtered_genes_to_contigs.csv')
+            default_db_file = os.path.join(absolute_path(), 'submodules/PlasBin-flow/database/genes.fasta')
             
-            argument = [mapping_file, alpha1, alpha2, rmiter]
-            default_arg = [default_maping_file, 1, 1, 50]
+            argument = [db_file, alpha1, alpha2, rmiter]
+            default_arg = [default_db_file, 1, 1, 50]
     
             plasbin_argument = process_arguments(argument, default_arg)
-            mapping_file, alpha1, alpha2, rmiter = plasbin_argument
+            db_file, alpha1, alpha2, rmiter = plasbin_argument
+            print(f'this is my db file {db_file}')
+
+            #check if the user provided a mapping file for plasbin else generate one
+            if mapping_file == None:
+                mapping_file = os.path.join(method_config['output']['outdir_binning'], 'mapping.csv')
+                print(f'this is my mapping file 1 {mapping_file}')
+                query_file = os.path.join(method_config['output']['outdir_binning'], 'query.fasta')
+
+                if input_file.endswith('gfa'):
+                    query_file = conversion_gfa_fasta(input_file, query_file)
+                    
+                    check_file(query_file)
+
+                else:
+                    query_file = input_file
+                
+                logging.info(f"created the query file for blast for PlasBin tool {query_file}")
+
+                run_blast6(query_file, db_file, mapping_file)
+                print(f'this is my mapping file {mapping_file}')
+                check_file(mapping_file)
 
             try:
                 generate_seed_contigs(input_file, mapping_file, method_config)

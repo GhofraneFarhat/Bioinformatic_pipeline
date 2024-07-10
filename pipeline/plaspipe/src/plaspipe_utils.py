@@ -3,6 +3,9 @@ import logging
 import sys
 import gzip
 import shutil
+import subprocess
+
+from .gfa_to_fasta import write_GFA_to_FASTA
 
 class CustomException(Exception):
     def __init__(self, msg):
@@ -65,6 +68,9 @@ def _check_file(in_file, log=False, msg='FILE'):
             
 def check_file(in_file):
     _check_file(in_file, log=False)
+
+def log_file(in_file):
+    _check_file(in_file, log=True)
 
 
 #gunzzipping a gfa file
@@ -332,5 +338,66 @@ def absolute_path ():
     base_path = os.sep.join(path_parts[:target_index+1])
 
     return base_path
+
+def _run_cmd(cmd, output, num_attempts, exit_on_error):
+    """ 
+    Run external command, trying at most num_attempts times  
+    If output is None, write output in logging file
+    """
+    cmd_str = ' '.join(cmd)
+    logging.info(f'COMMAND\t{cmd_str}')
+    attempt = 1
+    process_returncode = -1
+    while attempt <= num_attempts:
+        try:
+            process = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError as e:
+            msg = f'COMMAND\t{cmd_str} attempt #{attempt} {e}'
+            if attempt < num_attempts:
+                process_warning(f'{msg}: retrying')
+            elif exit_on_error:
+                process_exception(f'{msg}: aborting')
+            else:
+                process_warning(f'{msg}: failed but not aborting')
+        else:
+            if output is None:
+                logging.info(f'STDOUT:\n{process.stdout}')
+            else:
+                with open(output, 'w') as out_file:                    
+                    out_file.write(process.stdout)
+            if len(process.stderr) > 0:
+                logging.warning(f'STDERR:\n{process.stderr}')
+            process_returncode = process.returncode
+        attempt += 1
+    return process_returncode
+    
+def run_cmd(cmd, num_attempts=5, exit_on_error=True):
+    """ Run external command, trying at most num_attempts=5 times  """
+    return _run_cmd(cmd, None, num_attempts, exit_on_error)
+
+
+def conversion_gfa_fasta(gfa_file, fasta_file, gzipped_gfa = False, gzipped_fasta = False):
+    """
+    Convert GFA to FASTA or return the path to the appropriate input file.
+
+    Args:
+        input_format (str): Desired input format ('fasta' or 'gfa').
+        folder_tool (str): Name of the tool folder.
+
+    Returns:
+        str: Path to the input file (converted if necessary).
+    """
+    try:
+
+        sep = ' '
+
+
+        write_GFA_to_FASTA(gfa_file, fasta_file, gzipped_gfa, gzipped_fasta, sep=sep)
+        log_file_creation('gfa converted file', fasta_file)
+        return fasta_file
+
+    except Exception as e:
+        process_exception(f"Error in conversion the file: {str(e)}")
+    
 
 

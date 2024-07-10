@@ -198,7 +198,7 @@ class PipelineData:
         Update pipeline data from binning CSV file
         """
         try:
-            next(binning_result)  # Skip the header row
+            
             for line in binning_result:
                 contig_names = line.get('Contig')
                 bin_id = line.get('Bin')

@@ -27,6 +27,7 @@ def get_conversion_class(tool_name, tool_version):
         ('plASgraph', '1.0.0'): ('pipeline.plaspipe.tool_conversion.plasgraph_conversion', 'CsvToCsv'),
         ('plASgraph2', '2.0.0'): ('pipeline.plaspipe.tool_conversion.plasgraph2_conversion', 'Plasgraph2ToCsv'),
         ('bin_tool', '1.0.0'): ('pipeline.plaspipe.tool_conversion.plasgraph_conversion', 'CsvToCsv'),
+        ('PlasBin', '1.0.0'): ('pipeline.plaspipe.tool_conversion.PlasBin_conversion', 'PlasBinToCsv'),
         ('plasbin_flow', '1.0.0'): ('pipeline.plaspipe.tool_conversion.plasbin_flow_conversion', 'TsvToCsv'),
     }
 
@@ -76,7 +77,9 @@ def run_conversion(tool_name, tool_version, input_file, output_file):
 
         # Instantiate and run the conversion
         conversion = ConversionClass(input_file, output_file)
+        
         result = conversion.convert()
+        
         
         check_file(result)  # Ensure output file was created
         logging.info(f"Conversion completed. Output file: {result}")
