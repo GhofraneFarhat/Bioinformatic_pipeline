@@ -45,7 +45,7 @@ def generate_content_gc_file(method_configuration, gfa_file):
 
     print(f'command to run gc_content_file {command}')
     subprocess.run(command, check=True)
-
+    
     #return path_to_gc_content_file
 
 def generate_input_file(output_file, sample = 'ABCD', gfa_path = ''):
