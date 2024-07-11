@@ -2,11 +2,14 @@ import subprocess
 import os
 import gzip
 import shutil
+import sys
 
 from .plaspipe_utils import absolute_path
 
 
 def generate_content_gc_file(method_configuration, gfa_file):
+
+    python_executable = sys.executable
 
     binning_outdir = method_configuration['output']['outdir_binning']
     
@@ -28,7 +31,17 @@ def generate_content_gc_file(method_configuration, gfa_file):
     #generate the input file for generate for the gc content
     generate_input_file(input_file, sample_name, gfa_path)
 
-    command = ["python", plasbin_utils_script, "gc_probabilities", "--input_file", input_file, "--out_dir", out_dir, "--tmp_dir", tmp_dir, "--gc_intervals", gc_intervals_file]
+    #command = ["python", plasbin_utils_script, "gc_probabilities", "--input_file", input_file, "--out_dir", out_dir, "--tmp_dir", tmp_dir, "--gc_intervals", gc_intervals_file]
+
+    command = [
+        python_executable,
+        plasbin_utils_script,
+        'gc_probabilities', 
+        '--input_file', input_file,
+        '--out_dir', out_dir,
+        '--tmp_dir', tmp_dir,
+        '--gc_intervals', gc_intervals_file,
+    ]
 
     print(f'command to run gc_content_file {command}')
     subprocess.run(command, check=True)
