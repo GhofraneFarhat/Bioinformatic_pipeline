@@ -135,38 +135,38 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             path_to_outdir, output_file = os.path.split(output_file)
 
             mapping_file = method_config['mapping_file']
-            db_file = method_config['db_file']
+            genes_file = method_config['db_file']
             alpha1 = method_config['alpha1']
             alpha2 = method_config['alpha2']
             rmiter = method_config['rmiter']
 
             #assign default value
-            default_db_file = os.path.join(absolute_path(), 'submodules/PlasBin-flow/database/genes.fasta')
+            default_genes_file = os.path.join(absolute_path(), 'submodules/PlasBin-flow/database/genes.fasta')
             
-            argument = [db_file, alpha1, alpha2, rmiter]
-            default_arg = [default_db_file, 1, 1, 50]
+            argument = [genes_file, alpha1, alpha2, rmiter]
+            default_arg = [default_genes_file, 1, 1, 50]
     
             plasbin_argument = process_arguments(argument, default_arg)
-            db_file, alpha1, alpha2, rmiter = plasbin_argument
-            print(f'this is my db file {db_file}')
+            genes_file, alpha1, alpha2, rmiter = plasbin_argument
+            print(f'this is my genes databases file {genes_file}')
 
             #check if the user provided a mapping file for plasbin else generate one
             if mapping_file == None:
                 mapping_file = os.path.join(method_config['output']['outdir_binning'], 'mapping.csv')
                 print(f'this is my mapping file 1 {mapping_file}')
-                query_file = os.path.join(method_config['output']['outdir_binning'], 'query.fasta')
+                contigs_file = os.path.join(method_config['output']['outdir_binning'], 'contigs.fasta')
 
                 if input_file.endswith('gfa'):
-                    query_file = conversion_gfa_fasta(input_file, query_file)
+                    contigs_file = conversion_gfa_fasta(input_file, contigs_file)
                     
-                    check_file(query_file)
+                    check_file(contigs_file)
 
                 else:
-                    query_file = input_file
+                    contigs_file = input_file
                 
-                logging.info(f"created the query file for blast for PlasBin tool {query_file}")
+                logging.info(f"created the contigs fasta file for blast for PlasBin tool {contigs_file}")
 
-                run_blast6(query_file, db_file, mapping_file)
+                run_blast6(genes_file, contigs_file, mapping_file)
                 print(f'this is my mapping file {mapping_file}')
                 check_file(mapping_file)
 
