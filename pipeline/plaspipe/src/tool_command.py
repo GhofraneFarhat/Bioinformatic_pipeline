@@ -16,6 +16,7 @@ from .plaspipe_utils import conversion_gfa_fasta
 import os
 import logging
 import subprocess
+import sys
 
 def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
     """
@@ -42,6 +43,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
         logging.info(f"Generating command for {tool_name} version {tool_version}")
         logging.debug(f"Input file: {input_file}")
         logging.debug(f"Output file: {output_file}")
+        python_executable = sys.executable
 
         # Generate command based on tool and version
         if tool_name == "plASgraph" and tool_version == "1.0.0":
@@ -49,15 +51,29 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             #the script_path
             plasgraph_script = os.path.join(absolute_path(), 'submodules/plASgraph/plASgraph.py')
             
-            command = f'python {script_name} -i {input_file} -o {output_file}'
+
+            command = [
+                python_executable,
+                plasgraph_script,
+                '-i', input_file,
+                '-o', output_file,
+            ]
 
 
         elif tool_name == "plASgraph2" and tool_version == "2.0.0":
-
             #the script_path
             plasgraph2_script = os.path.join(absolute_path(), 'submodules/plASgraph2/src/plASgraph2_classify.py')
+            # Use sys.executable to get the correct Python interpreter
+             
             
-            command = f'python {plasgraph2_script} gfa {input_file} {tool_parameters} {output_file}'
+            command = [
+                python_executable,
+                plasgraph2_script,
+                'gfa',
+                input_file,
+                tool_parameters,
+                output_file
+            ]
 
 
         elif tool_name == "platon" and tool_version == "1.0.0":
@@ -80,6 +96,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             # Handle plasbin_flow specific requirements
             path_to_outdir, output_file = os.path.split(output_file)
 
+            
             # Generate GC content file
             try:
                 generate_content_gc_file(method_config, input_file)
@@ -127,8 +144,22 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             assembler, seed_score, seed_len, gc_intervals = plasbin_flow_argument 
               
             #get the command
-            command = f'python {plasbin_flow_script} -ag {input_file} -gc {gc_content_file} -score {classification_score_result} -out_dir {path_to_outdir} -out_file {output_file} -log_file {log_file} -seed_len {seed_len} -seed_score {seed_score} -assembler {assembler} -gc_intervals {gc_intervals}'
-        
+            command = [
+                python_executable,
+                plasbin_flow_script,
+                '-ag', input_file,
+                '-gc', gc_content_file,
+                '-score', classification_score_result,
+                '-out_dir', path_to_outdir,
+                '-out_file', output_file,
+                '-log_file', log_file,
+                '-seed_len', str(seed_len),
+                '-seed_score', str(seed_score),
+                '-assembler', assembler,
+                '-gc_intervals', gc_intervals
+            ]
+
+
         elif tool_name == "PlasBin" and tool_version == "1.0.0":
 
             #get the output folder
@@ -182,7 +213,14 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             plasbin_script = os.path.join(absolute_path(), 'submodules/PlasBin/code/plasmids_iterative.py')
             
             command = f'python {plasbin_script} --ag {input_file} --map {mapping_file} --seeds {seed_contigs_file} --out {path_to_outdir}'
-
+            command = [
+                python_executable,
+                plasbin_script,
+                '-ag', input_file,
+                '--map', mapping_file,
+                '-seeds', seed_contigs_file,
+                '--out', path_to_outdir,
+            ]
 
         else:
             raise ValueError(f"Unsupported tool: {tool_name} or version: {tool_version}")
