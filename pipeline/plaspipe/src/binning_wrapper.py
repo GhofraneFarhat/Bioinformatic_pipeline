@@ -5,6 +5,8 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import logging
 import sys
+import shlex
+
 
 from .plaspipe_utils import process_exception
 from .plaspipe_utils import process_error
@@ -48,6 +50,7 @@ class BinningWrapper:
         self.gzipped_fasta = gzipped_fasta
 
         self.classification_result_csv = classification_result_file
+        self.logger = logging.getLogger(__name__)
 
     def run(self):
 
@@ -61,56 +64,67 @@ class BinningWrapper:
         except Exception as e:
             process_exception(f"Error running binning: {str(e)}")
 
-    def run_binning(self):
 
+    def run_binning(self):
         """
         Run the binning tool with the appropriate input and parameters
         return: 
-        output_binning (str): path the the binning file result
+        output_binning (str): path to the binning file result
         """
-
         try:
             bin_format = self.method_configuration['input_format']
             bin_tool_name = self.method_configuration['name']
             version = self.method_configuration['version']
-            
 
             self.input_bin_converted = self.conversion(bin_format, bin_tool_name)
 
-            #check the converted file
+            # Check the converted file
             check_file(self.input_bin_converted)
-            print(f'Converted input file for binning: {self.input_bin_converted}')
+            self.logger.info(f'Converted input file for binning: {self.input_bin_converted}')
 
             output_binning = os.path.join(self.binning_dir, f"{self.prefix}_{bin_tool_name}_{version}")
-             
+        
             log_file_creation('binning_tool_result', output_binning)
-            full_command = get_command(self.method_configuration, self.input_bin_converted, output_binning, self.classification_result_csv)
+            command = get_command(self.method_configuration, self.input_bin_converted, output_binning, self.classification_result_csv)
+            print(f'command to run tool {command}')
 
-            subprocess.run(full_command, shell=False, check=True)
+            if command is None:
+                raise ValueError(f"Failed to generate command for {bin_tool_name} version {version}")
 
+            # Ensure command is a list
+            if isinstance(command, str):
+                command = shlex.split(command)
 
-            #Exception for Plasbin tool
+            
+        
+            result = subprocess.run(command, capture_output=True, text=True, check=True)
+        
+            self.logger.info(f"Command output: {result.stdout}")
+            if result.stderr:
+                self.logger.warning(f"Command stderr: {result.stderr}")
+
+            # Exception for PlasBin tool
             if bin_tool_name == 'PlasBin' and version == '1.0.0':
+                # Get the alpha parameters
+                alpha1 = self.method_configuration.get('alpha1', 1)
+                alpha2 = self.method_configuration.get('alpha2', 1)
 
-                #get the alpha parameter
-                alpha1 = self.method_configuration['alpha1']
-                alpha2 = self.method_configuration['alpha2']
-
-                #assign the default numbers
+                # Assign the default numbers
                 argument = [alpha1, alpha2]
                 default_arg = [1, 1]
-    
+
                 plasbin_argument = process_arguments(argument, default_arg)
                 alpha1, alpha2 = plasbin_argument
                 plasbin_dir = f"{alpha1}.{alpha2}"
 
+                output_binning = os.path.join(self.binning_dir, plasbin_dir, 'MILP/contig_chains.csv')
 
-                output_binning = os.path.join (self.binning_dir, plasbin_dir, 'MILP/contig_chains.csv' )
-                
+            check_file(output_binning)
+            self.logger.info(f"Binning output file created: {output_binning}")
             return output_binning
 
         except subprocess.CalledProcessError as e:
-            process_error(f"Error running binning command: {str(e)}")
+            process_error(f"Error running binning command: {e.stderr}")
         except Exception as e:
             process_exception(f"Unexpected error in run_binning: {str(e)}")
 

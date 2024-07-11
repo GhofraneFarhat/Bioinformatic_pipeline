@@ -5,6 +5,8 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import logging
 import sys
+import shlex
+
 
 from .plaspipe_utils import process_exception, process_error, create_directory, check_file, log_file_creation
 from .tool_command import get_command
@@ -51,6 +53,8 @@ class ClassificationWrapper:
         except Exception as e:
             process_exception(f"Error running the classification tool: {str(e)}")
 
+
+
     def run_classification(self):
         """
         Run the classification tool with the appropriate input and parameters.
@@ -62,21 +66,31 @@ class ClassificationWrapper:
             class_format = self.method_configuration['input_format']
             class_tool_name = self.method_configuration['name']
             version = self.method_configuration['version']
-            
-
+        
             self.input_classif_converted = self.conversion(class_format, class_tool_name)
             check_file(self.input_classif_converted)
             self.logger.info(f'Converted input file: {self.input_classif_converted}')
 
             output_classification = os.path.join(self.classification_dir, f"{self.prefix}_{class_tool_name}_{version}")
-            full_command = get_command(self.method_configuration, self.input_classif_converted, output_classification)
+            command = get_command(self.method_configuration, self.input_classif_converted, output_classification)
 
-            subprocess.run(full_command, shell=False, check=True)
+            # Split the command string into a list if it's not already a list
+            if isinstance(command, str):
+                command = shlex.split(command)
+
+            self.logger.info(f"Executing command: {' '.join(command)}")
+        
+            result = subprocess.run(command, capture_output=True, text=True, check=True)
+        
+            self.logger.info(f"Command output: {result.stdout}")
+            if result.stderr:
+                self.logger.warning(f"Command stderr: {result.stderr}")
+
             log_file_creation('classification_tool_result', output_classification)
             return output_classification
 
         except subprocess.CalledProcessError as e:
-            process_error(f"Error running classification command: {str(e)}")
+            process_error(f"Error running classification command: {e.stderr}")
         except Exception as e:
             process_exception(f"Unexpected error in run_classification: {str(e)}")
 
