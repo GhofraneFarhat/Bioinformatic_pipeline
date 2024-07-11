@@ -7,9 +7,6 @@
 [submodule "submodules/classify"]
 	path = submodules/classify
 	url = https://github.com/GhofraneFarhat/classify.git
-[submodule "submodules/plASgraph"]
-	path = submodules/plASgraph
-	url = https://github.com/cchauve/plASgraph.git
 [submodule "submodules/PlasBin-flow"]
 	path = submodules/PlasBin-flow
 	url = https://github.com/cchauve/PlasBin-flow.git
