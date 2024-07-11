@@ -14,7 +14,15 @@ Plaspipe is a bioinformatic pipeline for plasmid analysis. This pipeline integra
 Plaspipe can be installed from this repository 
 
 ```bash
-git clone https://github.com/GhofraneFarhat/Bioinformatic_pipeline
+git clone https://github.com/GhofraneFarhat/Bioinformatic_pipeline --recurse-submodules
+```
+Plaspipe is written in Python 3. It has been developed and tested with Python 3.10.9 and the modules listed in the requirements.txt file. All modules can be installed using pip (https://docs.python.org/3.10/installing/index.html), and we strongly recommend to run plaspipe using a dedicated ```conda``` environment.
+
+The environment can be created e.g. using the commands below:
+```bash
+conda create -n myenv python=3.10.9
+conda activate myenv
+pip install -r requirements.txt 
 ```
 
 Plaspipe is composed of this main script:
@@ -59,6 +67,11 @@ The Pipeline integrates a suite of cutting-edge bioinformatics tools to provide 
     - Biopython (version 1.81+),
     - scipy (version 1.10.1+),
     - numpy (version 1.24.2+).
+
+- PlasBin requires:
+
+    - Python (Version 3+; packages: random, math, sys)
+    - Gurobi solver (Version 9.1.2+)
 
 ### Obtaining Gurobi license
 PlasBin-flow and PlasBin use the [Gurobi Solver](https://www.gurobi.com/). To use them, a Gurobi license is needed, which is free for academics.
@@ -133,7 +146,7 @@ The Binning Wrapper is is another core component of our pipeline, responsible fo
 To process an input file, given the input files described above, the command plaspipe.py can be used as follows:
 
 ```python
-python src/plaspipe.py
+python -m pipeline.plaspipe.src.plaspipe 
        -yf parameter.yaml
 ```
 where 
