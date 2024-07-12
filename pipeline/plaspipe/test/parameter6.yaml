@@ -1,7 +1,7 @@
   ## Input Data
 input:
   path_to_input_gfa: C:\Users\user\Desktop\Bioinformatic_pipeline\pipeline\plaspipe\exemple_input\c_freundii_assembly.gfa
-  path_to_input_fasta: #C:/Users/user/Desktop/run/input/output.fasta
+  path_to_input_fasta: 
 
 outdir_pipeline: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin
 prefix: plasgraph_plasbin
@@ -11,7 +11,6 @@ classification:
   version: 2.0.0
   
   input_format: gfa
-  path_to_script: C:\Users\user\Desktop\Bioinformatic_pipeline\submodules\plASgraph2\src\plASgraph2_classify.py
   parameters: C:\Users\user\Desktop\Bioinformatic_pipeline\submodules\plASgraph2\model\ESKAPEE_model
 
 
@@ -24,9 +23,10 @@ binning:
   version: 1.0.0
 
   input_format: gfa
-  parameters: #tool_parameter
+  parameters: 
   plasbin_out_dir: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin
-  mapping_file:
+  mapping_file: 
+  genes_file:
 
   rd_ratio: 
   min_gd: 
