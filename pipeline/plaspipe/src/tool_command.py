@@ -101,6 +101,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             try:
                 generate_content_gc_file(method_config, input_file)
                 gc_content_file = os.path.join(method_config['plasbin_out_dir'], method_config['sample_name'] + ".gc.tsv")
+                
                 check_file(gc_content_file)  # Verify the file was created successfully
                 logging.info(f"GC content file is saved to {gc_content_file}")
             except Exception as e:
@@ -212,13 +213,13 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             #the script_path
             plasbin_script = os.path.join(absolute_path(), 'submodules/PlasBin/code/plasmids_iterative.py')
             
-            command = f'python {plasbin_script} --ag {input_file} --map {mapping_file} --seeds {seed_contigs_file} --out {path_to_outdir}'
+            
             command = [
                 python_executable,
                 plasbin_script,
-                '-ag', input_file,
+                '--ag', input_file,
                 '--map', mapping_file,
-                '-seeds', seed_contigs_file,
+                '--seeds', seed_contigs_file,
                 '--out', path_to_outdir,
             ]
 
