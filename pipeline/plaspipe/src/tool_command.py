@@ -167,7 +167,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             path_to_outdir, output_file = os.path.split(output_file)
 
             mapping_file = method_config['mapping_file']
-            genes_file = method_config['db_file']
+            genes_file = method_config['genes_file']
             alpha1 = method_config['alpha1']
             alpha2 = method_config['alpha2']
             rmiter = method_config['rmiter']
@@ -222,6 +222,20 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
                 '--seeds', seed_contigs_file,
                 '--out', path_to_outdir,
             ]
+
+
+        elif tool_name == "PlasForest" and tool_version == "1.4.0":
+
+            # Define the path to the bash script
+            bash_script = "./PlasForest.sh"
+
+            # Make sure the bash script is executable
+            os.chmod(bash_script, 0o755)
+
+            # create the command to run the bash script with the input and output file paths as arguments
+            command = [bash_script, input_file, output_file]
+
+
 
         else:
             raise ValueError(f"Unsupported tool: {tool_name} or version: {tool_version}")
