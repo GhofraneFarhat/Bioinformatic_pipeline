@@ -16,3 +16,6 @@
 [submodule "submodules/PlasBin"]
 	path = submodules/PlasBin
 	url = https://github.com/cchauve/PlasBin.git
+[submodule "submodules/PlasForest"]
+	path = submodules/PlasForest
+	url = https://github.com/leaemiliepradier/PlasForest.git

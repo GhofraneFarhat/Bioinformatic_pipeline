@@ -76,7 +76,7 @@ class ClassificationWrapper:
             
             #exception for plasforest
             if class_tool_name == "PlasForest" and version == "1.4.0":
-                output_classification = os.path.join(self.classification_dir, f"{self.prefix}_{class_tool_name}_{version}.csv")
+                output_classification = os.path.join(self.classification_dir, f"{self.prefix}_{class_tool_name}_{version}_1.csv")
     
             self.logger.info(f'Output classification file: {output_classification}')
         
