@@ -6,6 +6,7 @@ from Bio.SeqRecord import SeqRecord
 import logging
 import sys
 import shlex
+import time
 
 
 from .plaspipe_utils import process_exception, process_error, create_directory, check_file, log_file_creation
@@ -72,6 +73,14 @@ class ClassificationWrapper:
             self.logger.info(f'Converted input file: {self.input_classif_converted}')
 
             output_classification = os.path.join(self.classification_dir, f"{self.prefix}_{class_tool_name}_{version}")
+            
+            #exception for plasforest
+            if class_tool_name == "PlasForest" and version == "1.4.0":
+                output_classification = os.path.join(self.classification_dir, f"{self.prefix}_{class_tool_name}_{version}.csv")
+    
+            self.logger.info(f'Output classification file: {output_classification}')
+        
+            
             command = get_command(self.method_configuration, self.input_classif_converted, output_classification)
 
             # Split the command string into a list if it's not already a list
@@ -80,11 +89,15 @@ class ClassificationWrapper:
 
             self.logger.info(f"Executing command: {' '.join(command)}")
         
-            result = subprocess.run(command, capture_output=True, text=True, check=True)
-        
-            self.logger.info(f"Command output: {result.stdout}")
+            
+            result = subprocess.run(command, capture_output=False, text=True, check=True, shell=False)
+              
+            self.logger.info(f"Classification command output: {result.stdout}")
+
+            
             if result.stderr:
-                self.logger.warning(f"Command stderr: {result.stderr}")
+                self.logger.warning(f"Classification command stderr: {result.stderr}")
+
 
             log_file_creation('classification_tool_result', output_classification)
             return output_classification

@@ -97,11 +97,11 @@ class BinningWrapper:
 
             
         
-            result = subprocess.run(command, capture_output=True, text=True, check=True)
+            result = subprocess.run(command, capture_output=False, text=True, check=True, shell=False)
         
-            self.logger.info(f"Command output: {result.stdout}")
+            self.logger.info(f" Binning command output: {result.stdout}")
             if result.stderr:
-                self.logger.warning(f"Command stderr: {result.stderr}")
+                self.logger.warning(f"Binning command stderr: {result.stderr}")
 
             # Exception for PlasBin tool
             if bin_tool_name == 'PlasBin' and version == '1.0.0':
