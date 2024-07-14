@@ -227,7 +227,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
         elif tool_name == "PlasForest" and tool_version == "1.4.0":
 
             # Define the path to the bash script
-            bash_script = "./PlasForest.sh"
+            bash_script = os.path.join(absolute_path(), 'pipeline/plaspipe/src/PlasForest.sh')
 
             # Make sure the bash script is executable
             os.chmod(bash_script, 0o755)
