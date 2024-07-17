@@ -10,6 +10,7 @@ from .plaspipe_utils import process_error
 from .plaspipe_utils import process_arguments
 from .plaspipe_utils import absolute_path
 from .plaspipe_utils import conversion_gfa_fasta
+from .plaspipe_utils import import_file
 
 
 
@@ -234,6 +235,28 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
 
             # create the command to run the bash script with the input and output file paths as arguments
             command = [bash_script, input_file, output_file]
+
+        elif tool_name == "RFPlasmid" and tool_version == "1.0.0":
+
+            project_path = absolute_path()
+            path_to_outdir, output_file = os.path.split(output_file)
+            # Define the path to the bash script
+            bash_script = os.path.join(absolute_path(), 'pipeline/plaspipe/src/RFPlasmid.sh')
+
+
+            # Create the folder for the input files for RFPlasmid
+            fasta_folder = os.path.join(project_path, "fasta_folder")
+            os.makedirs(fasta_folder, exist_ok=True)
+
+            # Import the input file to the fasta folder
+            import_file(input_file, fasta_folder)
+
+            # Make sure the bash script is executable
+            os.chmod(bash_script, 0o755)
+
+            # create the command to run the bash script with the input and output file paths as arguments
+            command = [bash_script, fasta_folder, path_to_outdir, project_path]
+
 
 
 
