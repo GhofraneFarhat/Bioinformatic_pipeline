@@ -19,3 +19,9 @@
 [submodule "submodules/PlasForest"]
 	path = submodules/PlasForest
 	url = https://github.com/leaemiliepradier/PlasForest.git
+[submodule "submodules/plASgraph"]
+	path = submodules/plASgraph
+	url = https://github.com/cchauve/plASgraph.git
+[submodule "submodules/plasmidRF/RFPlasmid"]
+	path = submodules/plasmidRF/RFPlasmid
+	url = https://github.com/aldertzomer/RFPlasmid.git

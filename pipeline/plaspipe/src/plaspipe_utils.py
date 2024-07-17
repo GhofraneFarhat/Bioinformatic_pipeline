@@ -399,5 +399,11 @@ def conversion_gfa_fasta(gfa_file, fasta_file, gzipped_gfa = False, gzipped_fast
     except Exception as e:
         process_exception(f"Error in conversion the file: {str(e)}")
     
-
+#copy file into a specific destination
+def import_file(source_file, destination_folder):
+    try:
+        shutil.copy(source_file, destination_folder)
+        print(f"File '{source_file}' imported to '{destination_folder}' successfully.")
+    except IOError as error:
+        print(f"Error importing file: {error}")
 
