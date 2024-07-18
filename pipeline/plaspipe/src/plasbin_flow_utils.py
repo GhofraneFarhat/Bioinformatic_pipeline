@@ -31,8 +31,7 @@ def generate_content_gc_file(method_configuration, gfa_file):
     #generate the input file for generate for the gc content
     generate_input_file(input_file, sample_name, gfa_path)
 
-    #command = ["python", plasbin_utils_script, "gc_probabilities", "--input_file", input_file, "--out_dir", out_dir, "--tmp_dir", tmp_dir, "--gc_intervals", gc_intervals_file]
-
+  
     command = [
         python_executable,
         plasbin_utils_script,
@@ -51,11 +50,11 @@ def generate_content_gc_file(method_configuration, gfa_file):
 def generate_input_file(output_file, sample = 'ABCD', gfa_path = ''):
 
     """
-    Génère un fichier texte contenant des noms d'échantillon et des chemins GFA.
+    Génère un txt file of sample name and GFA file path.
 
     Args:
-        output_file (str): Chemin du fichier de sortie.
-        num_samples (int, optional): Nombre d'échantillons à générer. Défaut à 10.
+        output_file (str): output_file path.
+        
     """
 
     with open(output_file, 'w') as f:
@@ -72,7 +71,7 @@ def gzip_file(file_path, binning_outdir = ""):
     Args:
         file_path (str): Path to the file to be gzipped.
     """
-    # Get the file name and directory
+    # Get the file name and folder path
     directory, file_name = os.path.split(file_path)
     
     # Create the gzipped file path
