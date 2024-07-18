@@ -86,16 +86,16 @@ def load_yaml(file):
     """
     Load the YAML file.
     Args:
-        file (str): Path to the YAML file.
+        file (str): Path to the yaml file
     Returns:
-        configs (dict): Configurations from the YAML file.
+        configs (dict): Configurations from the yaml file
     """
 
     try:
         with open(file, 'r') as yaml_file:
             configs = yaml.safe_load(yaml_file)
         if not configs:
-            raise ValueError(f'YAML file {file} is empty.')
+            raise ValueError(f'yaml file {file} is empty')
         return configs
     except FileNotFoundError as f:
         process_file(f"The file is not found: {f}")
@@ -110,10 +110,6 @@ def get_input_file(method_config):
 
     Returns:
         tuple: Processed GFA and FASTA file paths.
-
-    Raises:
-        ValueError: If input files are invalid or missing.
-        IOError: If there are issues with file operations.
     """
     outdir_pipeline, prefix = get_output_directory(method_config)
     gun_gfa_path, gun_fasta_path = get_gunzipped_paths(outdir_pipeline, prefix)
@@ -150,13 +146,13 @@ def run_plaspipe_data(method_configs, prefix, class_tool_name, class_tool_versio
 #pipeline configs 
 def get_pipeline_configs(method_configs):
     """
-    Extract pipeline configurations from the method_configs dictionary.
+    extract pipeline configurations from the method_configs dictionary
 
     Args:
-        method_configs (dict): Configuration dictionary for the pipeline.
+        method_configs (dict): Configuration dictionary for the pipeline
 
     Returns:
-        list: A list containing the extracted configurations.
+        list: A list containing the extracted configurations
     """
     pipeline_configs = []
 
@@ -184,15 +180,12 @@ def get_pipeline_configs(method_configs):
 
 def generate_output_files(pipeline_data, out_dir, prefix):
     """
-    Generate the pipeline output files
+    generate the pipeline output files
 
     Args:
         pipeline_data (PipelineData): Instance of the PipelineData class
         out_dir (str): Directory to save the output files
         prefix (str): Prefix for output files
-
-    Raises:
-        IOError: If there are issues with file operations.
     """
     try:
         if out_dir == None:
@@ -235,7 +228,7 @@ def generate_output_files(pipeline_data, out_dir, prefix):
                         str(bin_data['flow']),  # Convert flow to string
                         ', '.join(bin_data['contigs'])
                     ])
-            log_file_creation("binning_output_file", binning_output_file)
+            log_file_creation("Binning_output_file", binning_output_file)
         except IOError as e:
             raise IOError(f"Error writing binning output file: {e}")
 
@@ -245,8 +238,6 @@ def generate_output_files(pipeline_data, out_dir, prefix):
     except Exception as e:
         process_error(f"Error generating output files: {e}")
         
-
-
 
 def main():
     try:

@@ -327,7 +327,7 @@ def absolute_path ():
     dirname = os.path.dirname(__file__)
     target_dir = "Bioinformatic_pipeline"
 
-    path_parties = dirname.split(os.sep)
+    path_parts = dirname.split(os.sep)
 
     # index of bioinformatic_pipeline 
     try:

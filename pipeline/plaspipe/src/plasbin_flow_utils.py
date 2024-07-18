@@ -50,7 +50,7 @@ def generate_content_gc_file(method_configuration, gfa_file):
 def generate_input_file(output_file, sample = 'ABCD', gfa_path = ''):
 
     """
-    Génère un txt file of sample name and GFA file path.
+    generate un txt file of sample name and GFA file path.
 
     Args:
         output_file (str): output_file path.
@@ -66,10 +66,10 @@ def generate_input_file(output_file, sample = 'ABCD', gfa_path = ''):
 
 def gzip_file(file_path, binning_outdir = ""):
     """
-    Gzips the given file and creates a new file with '.gz' extension.
+    gzip the given file and creates a new file with '.gz' extension
     
     Args:
-        file_path (str): Path to the file to be gzipped.
+        file_path (str): Path to the file to be gzipped
     """
     # Get the file name and folder path
     directory, file_name = os.path.split(file_path)
