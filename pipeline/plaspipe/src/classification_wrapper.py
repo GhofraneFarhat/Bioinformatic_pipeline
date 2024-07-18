@@ -262,7 +262,6 @@ class ClassificationWrapper:
         try:
             resultat_of_classification = self.run()
             check_file(resultat_of_classification)
-
             self.logger.info(f"Classification successeful. Result file: {resultat_of_classification}")
 
             if self.class_format == 'fasta':
