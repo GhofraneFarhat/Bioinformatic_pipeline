@@ -104,7 +104,7 @@ class ClassificationWrapper:
             self.logger.info(f"Executing command: {' '.join(command)}")
 
             # Run the classification command
-            result = subprocess.run(command, capture_output=True, text=True, check=True, shell=False)
+            result = subprocess.run(command, capture_output=False, text=True, check=True, shell=False)
             self.logger.info(f"Classification command output: {result.stdout}")
 
             if result.stderr:

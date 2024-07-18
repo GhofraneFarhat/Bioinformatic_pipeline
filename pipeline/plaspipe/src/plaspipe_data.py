@@ -117,8 +117,15 @@ class PipelineData:
         Update pipeline data using the classification tool output
         """
         try:
-            classification_wrapper = ClassificationWrapper(self.classification_folder, self.prefix, self.method_configuration['classification'], self.fasta_path, self.gfa_path, self.gzipped_gfa, self.gzipped_fasta)
-            self.output_class_pipeline = classification_wrapper.get_csv_file()
+
+            if self.method_configuration['classification']['name'] == None:
+                self.output_class_pipeline = self.method_configuration['classification']['classification_csv_result']
+                if self.output_class_pipeline == None:
+                    raise ValueError("Error: You need to provide either class_tool_name or classification_tool_result.")
+            else:
+                classification_wrapper = ClassificationWrapper(self.classification_folder, self.prefix, self.method_configuration['classification'], self.fasta_path, self.gfa_path, self.gzipped_gfa, self.gzipped_fasta)
+                self.output_class_pipeline = classification_wrapper.get_csv_file()
+            
             
             #check the classification result in a csv format
             check_file(self.output_class_pipeline)
