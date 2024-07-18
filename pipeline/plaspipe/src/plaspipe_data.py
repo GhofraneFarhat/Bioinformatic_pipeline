@@ -24,10 +24,10 @@ class PipelineData:
     """
 
     def __init__(self, method_config="", prefix="", classification_tool_name='classify', 
-                 classification_tool_version='1.0.0', binning_tool_name='bin_tool', 
-                 binning_tool_version='1.0.0', gfa_path="", fasta_path="", 
-                 classification_dir="", binning_dir="", gzipped_gfa=False, 
-                 gzipped_fasta=False, id_fun=lambda x: x):
+                classification_tool_version='1.0.0', binning_tool_name='bin_tool', 
+                binning_tool_version='1.0.0', gfa_path="", fasta_path="", 
+                classification_dir="", binning_dir="", gzipped_gfa=False, 
+                gzipped_fasta=False, id_fun=lambda x: x):
 
 
         # Initialize instance variables
@@ -117,10 +117,7 @@ class PipelineData:
         Update pipeline data using the classification tool output
         """
         try:
-            classification_wrapper = ClassificationWrapper(self.classification_folder, self.prefix, 
-                                                           self.method_configuration['classification'], 
-                                                           self.fasta_path, self.gfa_path, 
-                                                           self.gzipped_gfa, self.gzipped_fasta)
+            classification_wrapper = ClassificationWrapper(self.classification_folder, self.prefix, self.method_configuration['classification'], self.fasta_path, self.gfa_path, self.gzipped_gfa, self.gzipped_fasta)
             self.output_class_pipeline = classification_wrapper.get_csv_file()
             
             #check the classification result in a csv format
@@ -142,11 +139,7 @@ class PipelineData:
         Update pipeline data using the binning tool output
         """
         try:
-            binning_wrapper = BinningWrapper(self.binning_folder, self.prefix, 
-                                             self.method_configuration['binning'], 
-                                             self.fasta_path, self.gfa_path, 
-                                             self.gzipped_gfa, self.gzipped_fasta, 
-                                             self.output_class_pipeline)
+            binning_wrapper = BinningWrapper(self.binning_folder, self.prefix, self.method_configuration['binning'], self.fasta_path, self.gfa_path, self.gzipped_gfa, self.gzipped_fasta, self.output_class_pipeline)
             output_bin_pipeline = binning_wrapper.get_csv_file_from_binning()
             
             #check the csv file from the binning wrapper 
