@@ -12,6 +12,7 @@ class CustomException(Exception):
         # Call the base class constructor with the custom message
         super().__init__(msg)
 
+#conversions
 def csv_to_tsv(csv_file_path):
     """
     Convert a CSV file to a TSV file
@@ -39,6 +40,8 @@ def csv_to_tsv(csv_file_path):
 
     return tsv_file_path
 
+
+#exceptions
 def process_exception(msg):
     logging.exception(msg)
     print(f'EXCEPTION\t{msg}', file=sys.stderr)
@@ -53,7 +56,7 @@ def process_warning(msg):
     logging.warning(msg)
     print(f'WARNING\t{msg}', file=sys.stderr)
 
-
+#file checking
 def _check_file(in_file, log=False, msg='FILE'):
     try:
         if not os.path.isfile(in_file):
@@ -93,7 +96,6 @@ def gunzip_GFA(in_file_path, out_file_path):
     except Exception as e:
         process_exception(f'FASTA\tGunzipping {in_file_path} to {out_file_path}: {e}')
 
-
 #gunzip a fasta file
 def gunzip_FASTA(in_file_path, out_file_path):
     """
@@ -114,8 +116,7 @@ def gunzip_FASTA(in_file_path, out_file_path):
             SeqIO.write(records, out_file, 'fasta')
 
 
-
-#verify the input fasta and gfa
+#verify the input FASTA/GFA
 def verify_input_file(gfa_path, fasta_path):
     """
     Verify that at least one input file is provided and is not empty
@@ -149,8 +150,6 @@ def verify_input_file(gfa_path, fasta_path):
         process_error("All provided input files are empty. At least one file must be non-empty")
 
     logging.info(f"Valid input files: {', '.join(non_empty_files)}")
-
-
 
 
 def create_directory(output_path, prefix):
@@ -206,14 +205,11 @@ def verif_file(file, format):
     if not file.endswith(format):
         raise ValueError(f"Invalid user file '{file}'. Expected a {format} file.")
 
-# logger.py
 
-import logging
-
-# Setup logging
 def setup_logging(log_dir):
+    """ Setup logging"""
+
     # Ensure the directory for the log file exists
-    
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
@@ -225,7 +221,7 @@ def setup_logging(log_dir):
     )
 
 def log_file_creation(file_type, file_path):
-    # Create the log entry
+    """ logger"""
     log_entry = f"{file_type}: {file_path}"
     
     # Log the entry using logging.info
@@ -239,7 +235,7 @@ def get_output_directory(method_config):
     return create_directory(outdir_pipeline, prefix), prefix
 
 def get_gunzipped_paths(outdir_pipeline, prefix):
-    """Generate paths for gunzipped files"""
+    """generate paths for gunzipped files"""
     return (
         os.path.join(outdir_pipeline, f"{prefix}_gunzipped_gfa.gfa"),
         os.path.join(outdir_pipeline, f"{prefix}_gunzipped_fasta.fasta")
@@ -253,14 +249,14 @@ def get_input_paths(method_config):
     )
 
 def log_input_files(gfa_path, fasta_path):
-    """Log input file paths"""
+    """log input file paths"""
     logging.info(f"GFA file: {gfa_path}")
     logging.info(f"FASTA file: {fasta_path}")
     log_file_creation('gfa_path', gfa_path)
     log_file_creation('fasta_path', fasta_path)
 
 def process_gfa_file(gfa_path, gun_gfa_path):
-    """Process GFA file, unzipping if necessary"""
+    """Process and verify GFA file as pipeline input, unzipping if necessary"""
     if not gfa_path:
         return None
     if not os.path.exists(gfa_path):
@@ -275,7 +271,7 @@ def process_gfa_file(gfa_path, gun_gfa_path):
     return gfa_path
 
 def process_fasta_file(fasta_path, gun_fasta_path):
-    """Process FASTA file, unzipping if necessary"""
+    """Process and verify the FASTA file, unzipping if it is necessary"""
     if not fasta_path:
         return None
     if not os.path.exists(fasta_path):
@@ -290,28 +286,31 @@ def process_fasta_file(fasta_path, gun_fasta_path):
     return fasta_path
 
 
-""" Files and directories function """
         
 def clean_files(files2clean):
     for in_file in files2clean:
         if os.path.isfile(in_file):
             os.remove(in_file)
 
+
 def create_director(in_dir_list):
     for in_dir in in_dir_list:
         if not os.path.exists(in_dir):
             os.makedirs(in_dir)
 
-#return a default str
+
 def process_attribute(attr):
+    """ return a default str"""
     return "" if attr is None else attr
 
-#return a default float
+
 def process_attribute_float(attr):
+    """ return a default float"""
     return 0 if attr is None else attr
 
 def process_arguments(arg, default_arg):
-    # verify the lenth
+    """ assign default parameters """
+
     arg = arg + [None] * (len(default_arg) - len(arg))
     
     # affect default values
@@ -319,22 +318,24 @@ def process_arguments(arg, default_arg):
     
     return processed_arg
 
+
 def absolute_path ():
+    """ 
+    Get the absolute path of the project
+    """ 
 
     dirname = os.path.dirname(__file__)
     target_dir = "Bioinformatic_pipeline"
 
-    # Split the path into parts
-    path_parts = dirname.split(os.sep)
+    path_parties = dirname.split(os.sep)
 
-    # Find the index of the target directory
+    # index of bioinformatic_pipeline 
     try:
         target_index = path_parts.index(target_dir)
     except ValueError:
-        # If target directory is not found, return the original path
+        # if target directory is not found, return the original path
         return dirname
 
-    # Join the parts of the path up to and including the target directory
     base_path = os.sep.join(path_parts[:target_index+1])
 
     return base_path
@@ -399,11 +400,47 @@ def conversion_gfa_fasta(gfa_file, fasta_file, gzipped_gfa = False, gzipped_fast
     except Exception as e:
         process_exception(f"Error in conversion the file: {str(e)}")
     
-#copy file into a specific destination
+
 def import_file(source_file, destination_folder):
+    """ 
+    copy file into a specific destination
+    """ 
+
     try:
         shutil.copy(source_file, destination_folder)
         print(f"File '{source_file}' imported to '{destination_folder}' successfully.")
     except IOError as error:
         print(f"Error importing file: {error}")
 
+
+def fasta_filter_length(input_file, output_file, min_leng):
+    """ 
+    create a new fasta file contain only contigs with length > min_leng 
+    Args:
+    input_file: the fasta file (user input/ gfa converted)
+    min_leng: int provodided by the user
+    Return:
+    output_file: fasta file contains contigs > min_leng
+    """
+    with open(input_file, 'r') as in_file, open(output_file, 'w') as out_file:
+        current_header = ''
+        current_sequence = ''
+        
+        for line in in_file:
+            line = line.strip()
+            if line.startswith('>'):
+                # Process the previous contig if it exists
+                if current_header and len(current_sequence) > min_leng:
+                    out_file.write(f"{current_header}\n{current_sequence}\n")
+                
+                # Start a new contig
+                current_header = line
+                current_sequence = ''
+            else:
+                current_sequence += line
+        
+        # Process the last contig
+        if current_header and len(current_sequence) > min_length:
+            out_file.write(f"{current_header}\n{current_sequence}\n")
+
+    return output_file
