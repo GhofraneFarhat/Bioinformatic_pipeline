@@ -10,12 +10,10 @@ class PlasForestToCsv:
         with open(self.input_file, 'r') as in_file, open(self.output_file, 'w', newline='') as out_file:
             
             csv_writer = csv.writer(out_file)
-        
-            # Write the header
             csv_writer.writerow(['contig_name', 'plasmid_score', 'chromosome_score'])
         
             
-            next(in_file) #skip first line
+            next(in_file) 
         
             
             for line in in_file:
@@ -37,10 +35,9 @@ class PlasForestToCsv:
                     plasmid_score = 0
                     chromosome_score = 1
             
-                # Write the transformed row
                 csv_writer.writerow([id, plasmid_score, chromosome_score])
 
-        print(f"CSV file '{self.output_file}' has been created successfully.")
+        print(f"conversion of '{self.output_file}' is done")
         return self.output_file
 
 
