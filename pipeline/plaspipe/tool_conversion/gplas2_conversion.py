@@ -28,23 +28,24 @@ class gplasToCsv:
                 fields = line.strip().split()
                 if len(fields) >= 8:  # the result file contains 8 fields
                     number, contig_name, prob_chromosome, prob_plasmid, prediction, length, coverage, bin_value = fields[:8]
-                    gc_bin = "1"
+                    
                     gc_content = coverage
+
                     bin_dict[bin_value].append(f"{contig_name}:{gc_content}")
                  
 
     
         with open(self.output_file, 'w', newline='') as out_file:
-            fieldnames = ['Bin','GC_Bin', 'Contig']
+            fieldnames = ['Bin', 'Contig']
             csv_writer = csv.DictWriter(out_file, fieldnames=fieldnames)
             csv_writer.writeheader()
 
             for bin_value, contigs in bin_dict.items():
                 contig_str = ','.join(contigs)
-                row = {'Bin': bin_value,'GC_Bin' : gc_bin, 'Contig': contig_str}
+                row = {'Bin': bin_value, 'Contig': contig_str}
                 csv_writer.writerow(row)
             
 
-        print(f"Conversion complete. Output saved to {self.output_file}")
+        print(f"conversion completed {self.output_file}")
         return self.output_file
 
