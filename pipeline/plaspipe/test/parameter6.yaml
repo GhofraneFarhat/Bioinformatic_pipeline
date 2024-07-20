@@ -1,22 +1,23 @@
   ## Input Data
 input:
-  path_to_input_gfa: C:\Users\user\Desktop\Bioinformatic_pipeline\pipeline\plaspipe\exemple_input\c_freundii_assembly.gfa
-  path_to_input_fasta: 
+  path_to_input_gfa: #path to gfa file
+  path_to_input_fasta: #path to fasta file 
 
-outdir_pipeline: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin
-prefix: plasgraph_plasbin
+outdir_pipeline: 
+prefix: plASgraph2_gplas2
 
 classification:
   name: plASgraph2
   version: 2.0.0
   
   input_format: gfa
-  parameters: C:\Users\user\Desktop\Bioinformatic_pipeline\submodules\plASgraph2\model\ESKAPEE_model
-
+  min_length: 100
+  parameters: #path to the module for plasgraph2
+  classification_csv_result: #if you want to use a personnal classifier
 
   ## Output
   output:
-    outdir_classification: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin #path to the folder of the classification tool output
+    outdir_classification:  #path to the folder of the classification tool output
 
 binning:
   name: PlasBin
@@ -24,7 +25,7 @@ binning:
 
   input_format: gfa
   parameters: 
-  plasbin_out_dir: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin
+  plasbin_out_dir: 
   mapping_file: 
   genes_file:
 
@@ -40,4 +41,4 @@ binning:
 
   ## Output
   output:
-    outdir_binning: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plasgraph_plasbin #path to the folder of the classification tool output
+    outdir_binning:  #path to the folder of the binning tool output

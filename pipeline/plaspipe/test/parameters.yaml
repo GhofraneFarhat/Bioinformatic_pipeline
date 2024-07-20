@@ -1,30 +1,45 @@
   ## Input Data
 input:
-  path_to_input_gfa: C:\Users\user\Desktop\Bioinformatic_pipeline\c_freundii_assembly.gfa
-  path_to_input_fasta: #C:/Users/user/Desktop/run/input/output.fasta
+  path_to_input_gfa: #path to gfa file
+  path_to_input_fasta: #path to fasta file
 
-outdir_pipeline: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plas_plASgraph_1.0.0
-prefix: plas
+outdir_pipeline: 
+prefix: plasgraph_plasbin_flow
 
 classification:
   name: plASgraph
   version: 1.0.0
   
+  min_length:
   input_format: gfa
-  output_format: csv
-  path_to_script: C:\Users\user\Desktop\Bioinformatic_pipeline\plASgraph\plASgraph.py
-  parameters: tool_parameter
+  parameters:
+  classification_csv_result: #if you want to use a personnal classifier
 
 
   ## Output
   output:
-    outdir_classification: C:\Users\user\Desktop\Bioinformatic_pipeline\out\plas_plASgraph_1.0.0 #path to the folder of the classification tool output
+    outdir_classification:  #path to the folder of the classification tool output
 
 
 binning:
-  name: bin_tool
-  version: 1
-  input_format: GFA
-  output_format: csv
-  command: python C:/Users/user/Desktop/run/bin_tool/bin.py #command to run the tool 
-  parameters: tool_parameter
+  name: plasbin_flow
+  version: 1.0.0
+
+  input_format: gfa
+  
+  parameters: 
+
+  plasbin_out_dir: 
+  sample_name: #sample name parameter
+  plasbin_tmp_dir: 
+  gc_interval_file: 
+  log_file: #log file for plasbin_flow tool parameter
+  seed_len:
+  seed_score: 
+  assembler: 
+
+
+
+  ## Output
+  output:
+    outdir_binning: #path to the folder of the binning tool output
