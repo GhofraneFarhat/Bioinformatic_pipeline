@@ -11,7 +11,8 @@ from .plaspipe_utils import process_arguments
 from .plaspipe_utils import absolute_path
 from .plaspipe_utils import conversion_gfa_fasta
 from .plaspipe_utils import import_file
-
+from .plaspipe_utils import csv_to_tab
+from .plaspipe_utils import update_contig_names
 
 
 import os
@@ -258,7 +259,42 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             command = [bash_script, fasta_folder, path_to_outdir, project_path]
 
 
+        elif tool_name == "gplas2" and tool_version == "1.1.0":
 
+            # Define the path to the bash script
+            bash_script = os.path.join(absolute_path(), 'pipeline/plaspipe/src/gplas2.sh')
+            min_length = 100
+            output_name = 'testtiy'
+
+            # Make sure the bash script is executable
+            os.chmod(bash_script, 0o755)
+
+            #create a tab file for gplas2
+            try:
+                classification_result = csv_to_tab(plasmid_scores_file)
+                check_file(classification_result)  # Verify the converted file exists
+            except Exception as e:
+                process_error(f"Error converting plasmid scores file to TAB: {e}")
+
+            #change contigs name for gplas2
+            try:
+                classification_result_file = update_contig_names(classification_result, input_file)
+                check_file(classification_result_file)  # Verify the converted file exists
+            except Exception as e:
+                process_error(f"Error updating contigs name: {e}")
+
+
+            # create the command to run the bash script with the input and output file paths as arguments
+            command = [
+                "bash", 
+                bash_script, 
+                input_file, 
+                classification_result_file, 
+                output_name, 
+                str(min_length)
+                ]
+
+        
 
         else:
             raise ValueError(f"Unsupported tool: {tool_name} or version: {tool_version}")
