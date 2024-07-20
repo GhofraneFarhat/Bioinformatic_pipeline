@@ -25,3 +25,6 @@
 [submodule "submodules/plasmidRF/RFPlasmid"]
 	path = submodules/plasmidRF/RFPlasmid
 	url = https://github.com/aldertzomer/RFPlasmid.git
+[submodule "submodules/gplas2"]
+	path = submodules/gplas2
+	url = https://gitlab.com/mmb-umcu/gplas2.git

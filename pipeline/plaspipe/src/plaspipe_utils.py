@@ -1,6 +1,7 @@
 import os
 import logging
 import sys
+import csv
 import gzip
 import shutil
 import subprocess
@@ -414,6 +415,8 @@ def import_file(source_file, destination_folder):
 
 
 def fasta_filter_length(input_file, output_file, min_leng):
+
+
     """ 
     create a new fasta file contain only contigs with length > min_leng 
     Args:
@@ -444,3 +447,96 @@ def fasta_filter_length(input_file, output_file, min_leng):
             out_file.write(f"{current_header}\n{current_sequence}\n")
 
     return output_file
+
+def csv_to_tab(input_csv):
+    """
+    Convert a CSV file to a TAB file
+
+    Args:
+        input_csv (str): Path to the input CSV file.
+
+    Returns:
+        output_tab (str): Path to the output TSV file.
+    """
+
+    directory, tab_filename = os.path.split(input_csv)
+
+    # Create the output TSV filename by replacing the extension
+    tab_filename = os.path.splitext(tab_filename)[0] + '_1' + '.tab'
+
+    # Join the directory and TSV filename to get the output TSV file path
+    output_tab = os.path.join(directory, tab_filename)
+
+    with open(input_csv, 'r') as in_file, open(output_tab, 'w') as out_file:
+        # Write the header for the output tab file
+        out_file.write("Prob_Chromosome\tProb_Plasmid\tPrediction\tContig_name\tContig_length\n")
+        
+        # Read the input CSV file
+        csv_reader = csv.DictReader(in_file)
+        
+        for row in csv_reader:
+            contig_name = f"{row['contig_name']}"
+            chromosome_score = float(row['chromosome_score'])
+            plasmid_score = float(row['plasmid_score'])
+            length = int(row['length'])
+            
+            # Determine the prediction
+            prediction = "Chromosome" if chromosome_score > plasmid_score else "Plasmid"
+            
+            # Write the transformed data to the output file
+            out_file.write(f"{chromosome_score:.6f}\t{plasmid_score:.6f}\t{prediction}\t{contig_name}\t{length}\n")
+
+    return output_tab
+
+
+def update_contig_names(input_tab, gfa_file):
+    """
+    Updates the contig names in the input tab file based on the information provided in the GFA file.
+
+    Parameters:
+    - input_tab: str, path to the input tab file.
+    - gfa_file: str, path to the GFA file containing new contig information.
+    - output_tab: str, path to the output tab file with updated contig names.
+
+    Returns:
+    - tab file
+    """
+
+    directory, tab_filename = os.path.split(input_tab)
+
+    # Create the output TSV filename by replacing the extension
+    tab_filename = 'gfa_names_gplas2.tab'
+
+    # Join the directory and TSV filename to get the output TSV file path
+    output_tab = os.path.join(directory, tab_filename)
+
+    # Read the GFA file and create a mapping of old contig names to new contig names
+    contig_mapping = {}
+    
+    with open(gfa_file, 'r') as gfa:
+        for line in gfa:
+            if line.startswith('S'):
+                parts = line.split()
+                old_contig_name = parts[1]  # The old contig name (number)
+                length = parts[3].split(':')[2]  # Extract length from LN:i:114
+                depth = parts[4].split(':')[2]  # Extract depth from dp:f:2.789286085510359
+                new_contig_name = f"S{old_contig_name}_LN:i:{length}_dp:f:{depth}"
+                contig_mapping[old_contig_name] = new_contig_name
+
+    # Create the output tab file with updated contig names
+    with open(input_tab, 'r') as infile, open(output_tab, 'w') as outfile:
+        # Write the header for the output file
+        outfile.write("Prob_Chromosome\tProb_Plasmid\tPrediction\tContig_name\tContig_length\n")
+        
+        # Read the input tab file
+        tab_reader = csv.DictReader(infile, delimiter='\t')
+        
+        for row in tab_reader:
+            old_contig_name = row['Contig_name']
+            # Update the contig name using the mapping
+            new_contig_name = contig_mapping.get(old_contig_name, old_contig_name)  # Fallback to old name if not found
+            
+            # Write the updated row to the output file
+            outfile.write(f"{row['Prob_Chromosome']}\t{row['Prob_Plasmid']}\t{row['Prediction']}\t{new_contig_name}\t{row['Contig_length']}\n")
+
+    return output_tab
