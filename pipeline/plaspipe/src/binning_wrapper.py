@@ -14,6 +14,7 @@ from .plaspipe_utils import create_directory
 from .plaspipe_utils import check_file
 from .plaspipe_utils import log_file_creation
 from .plaspipe_utils import process_arguments
+from .plaspipe_utils import absolute_path
 
 from .tool_command import get_command
 from .tool_conversion import run_conversion
@@ -106,8 +107,8 @@ class BinningWrapper:
             # Exception for PlasBin tool
             if bin_tool_name == 'PlasBin' and version == '1.0.0':
                 # Get the alpha parameters
-                alpha1 = self.method_configuration.get('alpha1', 1)
-                alpha2 = self.method_configuration.get('alpha2', 1)
+                alpha1 = self.method_configuration['alpha1']
+                alpha2 = self.method_configuration['alpha2']
 
                 # Assign the default numbers
                 argument = [alpha1, alpha2]
@@ -118,6 +119,22 @@ class BinningWrapper:
                 plasbin_dir = f"{alpha1}.{alpha2}"
 
                 output_binning = os.path.join(self.binning_dir, plasbin_dir, 'MILP/contig_chains.csv')
+
+
+            #Exception for gplas2
+            if bin_tool_name == 'gplas2' and version == '1.1.0':
+                # Get the alpha parameters
+                gplas_result_name = self.method_configuration['output_name']
+                
+
+                # Assign the default numbers
+                if gplas_result_name == None:
+                    gplas_result_name = 'gplas'
+
+                
+
+                output_binning = os.path.join(absolute_path(), f'submodules/gplas2/results/{gplas_result_name}_results.tab' )
+
 
             check_file(output_binning)
             self.logger.info(f"Binning output file created: {output_binning}")
