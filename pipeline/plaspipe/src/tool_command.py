@@ -263,8 +263,16 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
 
             # Define the path to the bash script
             bash_script = os.path.join(absolute_path(), 'pipeline/plaspipe/src/gplas2.sh')
-            min_length = 100
-            output_name = 'testtiy'
+            min_length = method_config['min_length']
+            output_name = method_config['output_name']   
+  
+
+            #default parameter
+            argument = [min_length, output_name]
+            default_arg = [100,'gplas']
+    
+            gplas_argument = process_arguments(argument, default_arg)
+            min_length, output_name = gplas_argument
 
             # Make sure the bash script is executable
             os.chmod(bash_script, 0o755)

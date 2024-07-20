@@ -26,6 +26,7 @@ def get_conversion_class(tool_name, tool_version):
         ('PlasBin', '1.0.0'): ('pipeline.plaspipe.tool_conversion.PlasBin_conversion', 'PlasBinToCsv'),
         ('plasbin_flow', '1.0.0'): ('pipeline.plaspipe.tool_conversion.plasbin_flow_conversion', 'TsvToCsv'),
         ('PlasForest', '1.4.0'): ('pipeline.plaspipe.tool_conversion.PlasForest_conversion', 'PlasForestToCsv'),
+        ('gplas2', '1.1.0'): ('pipeline.plaspipe.tool_conversion.gplas2_conversion', 'gplasToCsv'),
     }
 
     try:
