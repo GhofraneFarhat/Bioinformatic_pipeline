@@ -35,3 +35,4 @@ class Plasgraph2ToCsv:
 
         print(f'conversion of plasgraph2 is done {self.output_file}')
         return self.output_file
+        
