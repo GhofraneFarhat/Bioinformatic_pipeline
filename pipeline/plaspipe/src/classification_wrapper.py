@@ -221,8 +221,8 @@ class ClassificationWrapper:
                         'plasmid_score': '0.5',
                         'length': str(len(record.seq)),  # Use actual sequence length
                         'chromosome_score': '0.5',
-                        'label': 'ambiguous',
-                        'sample': '.'
+                        'label': 'ambiguous'
+                        
                     }
                     csv_contigs.append(new_contig)
 
