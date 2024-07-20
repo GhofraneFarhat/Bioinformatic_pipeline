@@ -48,9 +48,3 @@ class gplasToCsv:
         print(f"Conversion complete. Output saved to {self.output_file}")
         return self.output_file
 
-# Example usage
-# convert_tab_to_csv('input.tab', 'output.csv')
-
-# For testing purposes, run the function with your specific file
-
-convert_tab_to_csv('C:/Users/user/Desktop/Bioinformatic_pipeline/submodules/gplas2/results/testtiy_results.tab', 'output.csv')
