@@ -443,7 +443,7 @@ def fasta_filter_length(input_file, output_file, min_leng):
                 current_sequence += line
         
         # Process the last contig
-        if current_header and len(current_sequence) > min_length:
+        if current_header and len(current_sequence) > min_leng:
             out_file.write(f"{current_header}\n{current_sequence}\n")
 
     return output_file
