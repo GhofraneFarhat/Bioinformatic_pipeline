@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 
-with open ("pip\README.md", "r") as f:
+with open ("pipeline\README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name='plaspipe',
+    name='Bio_pip',
     version='0.1',
-    packages=find_packages(where="pip"),
-    package_dir={'': 'pip'},
+    packages=find_packages(where="pipeline"),
+    package_dir={'': 'pipeline'},
     license="MIT",
     install_requires=[
         'networkx>=2.7',
@@ -48,3 +48,5 @@ setup(
         "dev": ["pytest>=7.0", "twine>=4.0.2"],
     },
 )
+
+
