@@ -87,8 +87,12 @@ class ClassificationWrapper:
             # Create new FASTA file containing only contigs with length > min_length
             if self.class_format == 'fasta':
 
+                min_length = self.min_length
+                if min_length == None:
+                    min_length = 100
+
                 fasta_output = os.path.join(self.classification_dir, f"{self.prefix}_{self.class_tool_name}_{self.version}_1.fasta")
-                input_classification_file = fasta_filter_length(self.input_classif_converted, fasta_output, self.min_length)
+                input_classification_file = fasta_filter_length(self.input_classif_converted, fasta_output, min_length)
                 self.logger.info(f'Output classification file for FASTA input: {output_classification}')
             else:
 
@@ -155,7 +159,11 @@ class ClassificationWrapper:
         try:
             input_file = self.pipeline_conversion_to_csv(file_path)
             pipeline_file = os.path.join(self.classification_dir, f"{self.prefix}_{self.class_tool_name}_{self.version}_formated.csv")
-
+            
+            min_length = self.min_length
+            if min_length == None:
+                min_length = 100
+                
             with open(input_file, 'r', newline='') as in_file, open(pipeline_file, 'w', newline='') as out_file:
                 reader = csv.DictReader(in_file)
                 fieldnames = reader.fieldnames
@@ -164,7 +172,7 @@ class ClassificationWrapper:
 
                 for row in reader:
                     length = int(row['length'])
-                    if length <= self.min_length:
+                    if length <= min_length:
                         row['plasmid_score'] = '0.5'
                         row['chromosome_score'] = '0.5'
                     writer.writerow(row)
