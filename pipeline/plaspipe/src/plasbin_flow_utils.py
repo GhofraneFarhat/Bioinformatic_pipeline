@@ -5,6 +5,7 @@ import shutil
 import sys
 
 from .plaspipe_utils import absolute_path
+from .plaspipe_utils import process_arguments
 
 
 def generate_content_gc_file(method_configuration, gfa_file):
@@ -24,6 +25,14 @@ def generate_content_gc_file(method_configuration, gfa_file):
         gc_intervals_file = ''
 
     input_file = os.path.join (binning_outdir,'plasbin_flow_sample.txt')
+
+    default_tmp_dir = os.path.join(absolute_path(), 'out_tmp')
+    default_out_dir = os.path.join(absolute_path(), 'out/plasbin_flow')
+    argument = [sample_name, out_dir, tmp_dir]
+    default_arg = ['test1', default_out_dir, default_tmp_dir]
+    
+    gc_content_argument = process_arguments(argument, default_arg)
+    sample_name, out_dir, tmp_dir = gc_content_argument
 
     #gzip the gfa file for the txt file
     gfa_path = gzip_file(gfa_file, binning_outdir)
