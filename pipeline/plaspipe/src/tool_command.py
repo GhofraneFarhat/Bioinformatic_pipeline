@@ -13,6 +13,7 @@ from .plaspipe_utils import conversion_gfa_fasta
 from .plaspipe_utils import import_file
 from .plaspipe_utils import csv_to_tab
 from .plaspipe_utils import update_contig_names
+from .plaspipe_utils import gzip_file
 
 
 import os
@@ -48,21 +49,8 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
         python_executable = sys.executable
 
         # Generate command based on tool and version
-        if tool_name == "plASgraph" and tool_version == "1.0.0":
 
-            #the script_path
-            plasgraph_script = os.path.join(absolute_path(), 'submodules/plASgraph/plASgraph.py')
-            
-
-            command = [
-                python_executable,
-                plasgraph_script,
-                '-i', input_file,
-                '-o', output_file,
-            ]
-
-
-        elif tool_name == "plASgraph2" and tool_version == "2.0.0":
+        if tool_name == "plASgraph2" and tool_version == "2.0.0":
             #the script_path
             plasgraph2_script = os.path.join(absolute_path(), 'submodules/plASgraph2/src/plASgraph2_classify.py')
             # Use sys.executable to get the correct Python interpreter
@@ -82,27 +70,38 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             command = f'platon {input_file} {output_file}'
 
 
-        elif tool_name == "classify" and tool_version == "1.0.0":
-
-            classify_script_name = os.path.join(absolute_path(), 'submodules/classify/classify.py')
-            
-            command = f'python {classify_script_name} -i {input_file} -o {output_file}'
-
-
-        elif tool_name == "bin_tool" and tool_version == "1.0.0":
-            classify_script_name = os.path.join(absolute_path(), 'submodules/bin_tool/bin.py')
-            command = f'python {script_name} {input_file} {output_file}'
-
-
         elif tool_name == "plasbin_flow" and tool_version == "1.0.0":
             # Handle plasbin_flow specific requirements
             path_to_outdir, output_file = os.path.split(output_file)
 
+            sample_name = method_config['sample_name']
+            log_file = method_config.get('log_file', 'plasbin_flow.log')  # Provide a default log file name
+            assembler = method_config['assembler']
+            seed_score = method_config['seed_score']
+            seed_len = method_config['seed_len']
+            gc_intervals = method_config['gc_interval_file']
+            out_gc_file = method_config['plasbin_out_dir']
+
+            #the default values
+            default_gc_intervals = os.path.join(absolute_path(), 'submodules/PlasBin-flow/example/default/gc_intervals.txt')
+            default_out_dir = os.path.join(absolute_path(), 'out/plasbin_flow')
+
+            #the script_path
+            plasbin_flow_script = os.path.join(absolute_path(), 'submodules/PlasBin-flow/code/plasbin_flow.py')
             
+            #processing the attributes
+            argument = [sample_name,assembler, seed_score, seed_len, gc_intervals, out_gc_file]
+            default_arg = ['test1','unicycler', 0.58, 2650, default_gc_intervals,default_out_dir]
+    
+            plasbin_flow_argument = process_arguments(argument, default_arg)
+            sample_name, assembler, seed_score, seed_len, gc_intervals, out_gc_file = plasbin_flow_argument
+
+
+
             # Generate GC content file
             try:
                 generate_content_gc_file(method_config, input_file)
-                gc_content_file = os.path.join(method_config['plasbin_out_dir'], method_config['sample_name'] + ".gc.tsv")
+                gc_content_file = os.path.join(out_gc_file, sample_name + ".gc.tsv")
                 
                 check_file(gc_content_file)  # Verify the file was created successfully
                 logging.info(f"GC content file is saved to {gc_content_file}")
@@ -126,25 +125,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             except Exception as e:
                 process_error(f"Error converting plasmid scores file to TSV: {e}")
 
-
-            log_file = method_config.get('log_file', 'plasbin_flow.log')  # Provide a default log file name
-            assembler = method_config['assembler']
-            seed_score = method_config['seed_score']
-            seed_len = method_config['seed_len']
-            gc_intervals = method_config['gc_interval_file']
-
-            #the default values
-            default_gc_intervals = os.path.join(absolute_path(), 'submodules/PlasBin-flow/example/default/gc_intervals.txt')
-            
-            #the script_path
-            plasbin_flow_script = os.path.join(absolute_path(), 'submodules/PlasBin-flow/code/plasbin_flow.py')
-            
-            #processing the attributes
-            argument = [assembler, seed_score, seed_len, gc_intervals]
-            default_arg = ['unicycler', 0.58, 2650, default_gc_intervals ]
-    
-            plasbin_flow_argument = process_arguments(argument, default_arg)
-            assembler, seed_score, seed_len, gc_intervals = plasbin_flow_argument 
+ 
               
             #get the command
             command = [
@@ -163,69 +144,6 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
             ]
 
 
-        elif tool_name == "PlasBin" and tool_version == "1.0.0":
-
-            #get the output folder
-            path_to_outdir, output_file = os.path.split(output_file)
-
-            mapping_file = method_config['mapping_file']
-            genes_file = method_config['genes_file']
-            alpha1 = method_config['alpha1']
-            alpha2 = method_config['alpha2']
-            rmiter = method_config['rmiter']
-
-            #assign default value
-            default_genes_file = os.path.join(absolute_path(), 'submodules/PlasBin-flow/database/genes.fasta')
-            
-            argument = [genes_file, alpha1, alpha2, rmiter]
-            default_arg = [default_genes_file, 1, 1, 50]
-    
-            plasbin_argument = process_arguments(argument, default_arg)
-            genes_file, alpha1, alpha2, rmiter = plasbin_argument
-            print(f'this is my genes databases file {genes_file}')
-
-            #check if the user provided a mapping file for plasbin else generate one
-            if mapping_file == None:
-                mapping_file = os.path.join(method_config['output']['outdir_binning'], 'mapping.csv')
-                print(f'this is my mapping file 1 {mapping_file}')
-                contigs_file = os.path.join(method_config['output']['outdir_binning'], 'contigs.fasta')
-
-                if input_file.endswith('gfa'):
-                    contigs_file = conversion_gfa_fasta(input_file, contigs_file)
-                    
-                    check_file(contigs_file)
-
-                else:
-                    contigs_file = input_file
-                
-                logging.info(f"created the contigs fasta file for blast for PlasBin tool {contigs_file}")
-
-                run_blast6(genes_file, contigs_file, mapping_file)
-                print(f'this is my mapping file {mapping_file}')
-                check_file(mapping_file)
-
-            try:
-                generate_seed_contigs(input_file, mapping_file, method_config)
-                seed_contigs_file = os.path.join(method_config['plasbin_out_dir'], "seed_contigs.csv")
-                check_file(seed_contigs_file)  # Verify the file was created successfully
-                logging.info(f"seed contig file is saved to {seed_contigs_file}")
-            except Exception as e:
-                process_error(f"Error generating or accessing seed contigs file: {e}")
-
-            #the script_path
-            plasbin_script = os.path.join(absolute_path(), 'submodules/PlasBin/code/plasmids_iterative.py')
-            
-            
-            command = [
-                python_executable,
-                plasbin_script,
-                '--ag', input_file,
-                '--map', mapping_file,
-                '--seeds', seed_contigs_file,
-                '--out', path_to_outdir,
-            ]
-
-
         elif tool_name == "PlasForest" and tool_version == "1.4.0":
 
             # Define the path to the bash script
@@ -236,6 +154,7 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
 
             # create the command to run the bash script with the input and output file paths as arguments
             command = [bash_script, input_file, output_file]
+
 
         elif tool_name == "RFPlasmid" and tool_version == "1.0.0":
 
@@ -302,7 +221,37 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
                 str(min_length)
                 ]
 
-        
+
+        elif tool_name == "mlplasmid" and tool_version == "2.2.0":
+
+            path_to_outdir, output_file_name = os.path.split(output_file)
+
+            #define default values
+            threshold = method_config['threshold']
+            species = method_config['species']
+
+            #check species
+            mlplasmid_species = ['Enterococcus faecium', 'Klebsiella pneumoniae', 'Escherichia coli']
+            
+            if species not in mlplasmid_species:
+                process_error(f"Unsupported species '{species}'. Supported species are: {', '.join(mlplasmid_species)}")
+
+            #set the default threshold
+            if threshold == None:
+                threshold = 0.7
+
+            #gzip the input file 
+            input_file = gzip_file(input_file, path_to_outdir)
+
+            # Define the path to the bash script
+            bash_script = os.path.join(absolute_path(), 'pipeline/plaspipe/src/mlplasmid.sh')
+
+            # Make sure the bash script is executable
+            os.chmod(bash_script, 0o755)
+
+            # create the command to run the bash script with the input and output file paths as arguments
+            command = [bash_script, input_file, output_file, str(threshold), species]      
+
 
         else:
             raise ValueError(f"Unsupported tool: {tool_name} or version: {tool_version}")

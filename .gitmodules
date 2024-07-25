@@ -13,18 +13,15 @@
 [submodule "submodules/plASgraph2"]
 	path = submodules/plASgraph2
 	url = https://github.com/cchauve/plASgraph2.git
-[submodule "submodules/PlasBin"]
-	path = submodules/PlasBin
-	url = https://github.com/cchauve/PlasBin.git
 [submodule "submodules/PlasForest"]
 	path = submodules/PlasForest
 	url = https://github.com/leaemiliepradier/PlasForest.git
-[submodule "submodules/plASgraph"]
-	path = submodules/plASgraph
-	url = https://github.com/cchauve/plASgraph.git
 [submodule "submodules/plasmidRF/RFPlasmid"]
 	path = submodules/plasmidRF/RFPlasmid
 	url = https://github.com/aldertzomer/RFPlasmid.git
 [submodule "submodules/gplas2"]
 	path = submodules/gplas2
 	url = https://gitlab.com/mmb-umcu/gplas2.git
+[submodule "submodules/mlplasmids"]
+	path = submodules/mlplasmids
+	url = https://gitlab.com/sirarredondo/mlplasmids.git

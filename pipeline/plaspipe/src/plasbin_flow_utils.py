@@ -6,6 +6,7 @@ import sys
 
 from .plaspipe_utils import absolute_path
 from .plaspipe_utils import process_arguments
+from .plaspipe_utils import gzip_file
 
 
 def generate_content_gc_file(method_configuration, gfa_file):
@@ -73,25 +74,4 @@ def generate_input_file(output_file, sample = 'ABCD', gfa_path = ''):
         # Écrire le nom d'échantillon et le chemin GFA dans le fichier
         f.write(f'{sample},{gfa_path}\n')
 
-def gzip_file(file_path, binning_outdir = ""):
-    """
-    gzip the given file and creates a new file with '.gz' extension
-    
-    Args:
-        file_path (str): Path to the file to be gzipped
-    """
-    # Get the file name and folder path
-    directory, file_name = os.path.split(file_path)
-    
-    # Create the gzipped file path
-    gzipped_file_path = os.path.join(binning_outdir, file_name + '.gz')
-    
-    # Open the input file in binary mode
-    with open(file_path, 'rb') as input_file:
-        # Create the gzipped file and write the compressed data
-        with gzip.open(gzipped_file_path, 'wb') as gzipped_file:
-            shutil.copyfileobj(input_file, gzipped_file)
 
-    return gzipped_file_path
-    
-    print(f"File '{file_path}' has been gzipped to '{gzipped_file_path}'")

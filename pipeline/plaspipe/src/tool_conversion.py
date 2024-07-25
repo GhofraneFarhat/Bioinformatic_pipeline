@@ -19,14 +19,16 @@ def get_conversion_class(tool_name, tool_version):
         raise ValueError("Tool name and version must be strings")
 
     conversion_classes = {
-        ('classify', '1.0.0'): ('pipeline.plaspipe.tool_conversion.classify_conversion', 'FastaToCsv'),
-        ('plASgraph', '1.0.0'): ('pipeline.plaspipe.tool_conversion.plasgraph_conversion', 'CsvToCsv'),
+
         ('plASgraph2', '2.0.0'): ('pipeline.plaspipe.tool_conversion.plasgraph2_conversion', 'Plasgraph2ToCsv'),
-        ('bin_tool', '1.0.0'): ('pipeline.plaspipe.tool_conversion.plasgraph_conversion', 'CsvToCsv'),
-        ('PlasBin', '1.0.0'): ('pipeline.plaspipe.tool_conversion.PlasBin_conversion', 'PlasBinToCsv'),
+        
         ('plasbin_flow', '1.0.0'): ('pipeline.plaspipe.tool_conversion.plasbin_flow_conversion', 'TsvToCsv'),
+        
         ('PlasForest', '1.4.0'): ('pipeline.plaspipe.tool_conversion.PlasForest_conversion', 'PlasForestToCsv'),
+        
         ('gplas2', '1.1.0'): ('pipeline.plaspipe.tool_conversion.gplas2_conversion', 'gplasToCsv'),
+
+        ('mlplasmid', '2.2.0'): ('pipeline.plaspipe.tool_conversion.mlplasmid_conversion', 'mlplasmidToCsv'),
     }
 
     try:

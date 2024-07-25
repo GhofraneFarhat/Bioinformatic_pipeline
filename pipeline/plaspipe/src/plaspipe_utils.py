@@ -540,3 +540,27 @@ def update_contig_names(input_tab, gfa_file):
             outfile.write(f"{row['Prob_Chromosome']}\t{row['Prob_Plasmid']}\t{row['Prediction']}\t{new_contig_name}\t{row['Contig_length']}\n")
 
     return output_tab
+
+
+def gzip_file(file_path, binning_outdir = ""):
+    """
+    gzip the given file and creates a new file with '.gz' extension
+    
+    Args:
+        file_path (str): Path to the file to be gzipped
+    """
+    # Get the file name and folder path
+    directory, file_name = os.path.split(file_path)
+    
+    # Create the gzipped file path
+    gzipped_file_path = os.path.join(binning_outdir, file_name + '.gz')
+    
+    # Open the input file in binary mode
+    with open(file_path, 'rb') as input_file:
+        # Create the gzipped file and write the compressed data
+        with gzip.open(gzipped_file_path, 'wb') as gzipped_file:
+            shutil.copyfileobj(input_file, gzipped_file)
+
+    return gzipped_file_path
+    
+    print(f"File '{file_path}' has been gzipped to '{gzipped_file_path}'")
