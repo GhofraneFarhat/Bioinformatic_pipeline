@@ -1,0 +1,45 @@
+  ## Input Data
+input:
+  path_to_input_gfa: #path to gfa file input
+  path_to_input_fasta: #path to fasta file input
+
+outdir_pipeline: #path to output of pipeline
+prefix: mlplasmid_plasbin_flow
+
+classification:
+  name: mlplasmid
+  version: 2.2.0
+  min_length: 
+  input_format: fasta
+
+  species: 
+  threshold: 
+  
+  classification_csv_result: #if you want to use a personnal classifier
+
+
+  ## Output
+  output:
+    outdir_classification: ##path to the folder of the classification tool output
+
+binning:
+  name: plasbin_flow
+  version: 1.0.0
+
+  input_format: gfa
+   
+
+  plasbin_out_dir: 
+  sample_name: 
+  plasbin_tmp_dir: 
+  gc_interval_file: 
+  log_file: # you need to specify the path to log file for plasbin-flow
+  seed_len:
+  seed_score: 
+  assembler: 
+
+
+
+  ## Output
+  output:
+    outdir_binning:  #path to the folder of the binning tool output
