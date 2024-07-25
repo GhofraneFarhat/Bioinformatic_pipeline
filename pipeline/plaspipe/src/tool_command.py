@@ -32,16 +32,13 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
     plasmid_scores_file (str): Path to the plasmid scores file (optional).
 
     Returns:
-    str: The generated command to run the tool.
-
-    Raises:
-    ValueError: If the tool or version is not supported.
+    command: The generated command to run the tool.
     """
     try:
         # Extract tool information from method_config
         tool_name = method_config['name']
         tool_version = method_config['version']
-        tool_parameters = method_config['parameters']
+        
 
         logging.info(f"Generating command for {tool_name} version {tool_version}")
         logging.debug(f"Input file: {input_file}")
@@ -51,17 +48,23 @@ def get_command(method_config, input_file, output_file, plasmid_scores_file=""):
         # Generate command based on tool and version
 
         if tool_name == "plASgraph2" and tool_version == "2.0.0":
+
+            #specify the model parameter for plasgraph2
+            model = method_config['model']
+
+            #defeult model
+            if model == None:
+                model = os.pa.join(absolute_path(), 'submodules/plASgraph2/model/ESKAPEE_model')
+
             #the script_path
             plasgraph2_script = os.path.join(absolute_path(), 'submodules/plASgraph2/src/plASgraph2_classify.py')
-            # Use sys.executable to get the correct Python interpreter
-             
             
             command = [
                 python_executable,
                 plasgraph2_script,
                 'gfa',
                 input_file,
-                tool_parameters,
+                model,
                 output_file
             ]
 
