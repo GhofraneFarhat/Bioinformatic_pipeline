@@ -1,34 +1,49 @@
-import argparse
+#!/usr/bin/env python
+"""
+This module provides functionality to dynamically load and run conversion classes
+for various bioinformatics tools. It includes functions to get the appropriate
+conversion class based on the tool name and version, and to run the conversion
+process.
+
+Functions:
+    get_conversion_class(tool_name, tool_version): Retrieves the conversion class for a specified tool.
+    run_conversion(tool_name, tool_version, input_file, output_file): Runs the conversion process for a specified tool.
+
+The module supports conversion for the following tools:
+    - plASgraph2 (version 1.0.0)
+    - plasbin_flow (version 1.0.2.2)
+    - PlasForest (version 1.4.0)
+    - gplas2 (version 1.1.0)
+    - mlplasmid (version 2.2.0)
+"""
+import importlib
+import sys
+import os
 import logging
-from importlib import import_module
+from pathlib import Path
 from .plaspipe_utils import process_error, process_exception, check_file
+
 
 def get_conversion_class(tool_name, tool_version):
     """
-    Get the appropriate conversion class based on the tool name and version.
+    get the conversion class for the specified tool.
 
     Args:
     tool_name (str): Name of the tool
     tool_version (str): Version of the tool
-
     Returns:
-    class: The appropriate conversion class
+    conversion_class
     """
-    
+    #check the tool_name and version
     if not isinstance(tool_name, str) or not isinstance(tool_version, str):
         raise ValueError("Tool name and version must be strings")
 
     conversion_classes = {
-
-        ('plASgraph2', '2.0.0'): ('pipeline.plaspipe.tool_conversion.plasgraph2_conversion', 'Plasgraph2ToCsv'),
-        
-        ('plasbin_flow', '1.0.0'): ('pipeline.plaspipe.tool_conversion.plasbin_flow_conversion', 'TsvToCsv'),
-        
-        ('PlasForest', '1.4.0'): ('pipeline.plaspipe.tool_conversion.PlasForest_conversion', 'PlasForestToCsv'),
-        
-        ('gplas2', '1.1.0'): ('pipeline.plaspipe.tool_conversion.gplas2_conversion', 'gplasToCsv'),
-
-        ('mlplasmid', '2.2.0'): ('pipeline.plaspipe.tool_conversion.mlplasmid_conversion', 'mlplasmidToCsv'),
+        ('plASgraph2', '1.0.0'): ('pipeline.plaspipe.src.tools_conversion.plasgraph2_conversion', 'Plasgraph2ToCsv'),
+        ('plasbin_flow', '1.0.2.2'): ('pipeline.plaspipe.src.tools_conversion.plasbin_flow_conversion', 'TsvToCsv'),
+        ('PlasForest', '1.4.0'): ('pipeline.plaspipe.src.tools_conversion.PlasForest_conversion', 'PlasForestToCsv'),
+        ('gplas2', '1.1.0'): ('pipeline.plaspipe.src.tools_conversion.gplas2_conversion', 'gplasToCsv'),
+        ('mlplasmid', '2.2.0'): ('pipeline.plaspipe.src.tools_conversion.mlplasmid_conversion', 'mlplasmidToCsv'),
     }
 
     try:
@@ -36,22 +51,22 @@ def get_conversion_class(tool_name, tool_version):
         if module_name is None:
             raise ValueError(f"unsupported tool: {tool_name} or unsupported version: {tool_version}")
 
-        module = import_module(module_name)
+        module = importlib.import_module(module_name)
         return getattr(module, class_name)
 
     except ImportError as e:
-        process_error(f"error importing conversion class for {tool_name}: {e}")
+        print(f"Error importing conversion class for {tool_name}: {e}")
         raise
     except AttributeError as e:
-        process_error(f"conversion class not found for {tool_name}: {e}")
+        print(f"conversion class not found for {tool_name}: {e}")
         raise
     except Exception as e:
-        process_exception(f"unexpected error in get_conversion_class: {e}")
+        print(f"unexpected error in get_conversion_class: {e}")
         raise
 
 def run_conversion(tool_name, tool_version, input_file, output_file):
     """
-    run the conversion process for the specified tool.
+    Run the conversion process for the specified tool.
 
     Args:
     tool_name (str): Name of the tool

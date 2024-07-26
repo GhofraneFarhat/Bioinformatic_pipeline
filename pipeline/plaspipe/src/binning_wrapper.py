@@ -1,3 +1,23 @@
+#!/usr/bin/env python3
+"""
+This module contains the BinningWrapper class, which is responsible for managing the binning process
+in a bioinformatics pipeline. It handles input formatting, running binning tools, and converting
+output to the required format.
+
+Classes:
+    BinningWrapper: Manages the binning process, including input conversion, tool execution, and output formatting.
+
+Dependencies:
+    - os
+    - logging
+    - subprocess
+    - shlex
+    - Custom utility functions (e.g., process_exception, check_file, log_file_creation, get_command, etc.)
+
+Usage:
+    wrapper = BinningWrapper(binning_folder, prefix, binning_config, fasta_path, gfa_path)
+    csv_output = wrapper.get_csv_file_from_binning() : standart format of the pipeline
+"""
 import os
 import subprocess
 from Bio import SeqIO

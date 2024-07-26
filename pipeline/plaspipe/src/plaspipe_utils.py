@@ -5,15 +5,15 @@ import csv
 import gzip
 import shutil
 import subprocess
-
 from .gfa_to_fasta import write_GFA_to_FASTA
 
+# Custom exception class
 class CustomException(Exception):
     def __init__(self, msg):
         # Call the base class constructor with the custom message
         super().__init__(msg)
 
-#conversions
+# Conversion from CSV to TSV
 def csv_to_tsv(csv_file_path):
     """
     Convert a CSV file to a TSV file
@@ -24,41 +24,63 @@ def csv_to_tsv(csv_file_path):
     Returns:
         str: Path to the output TSV file.
     """
-    
     directory, tsv_filename = os.path.split(csv_file_path)
-
-    # Create the output TSV filename by replacing the extension
     tsv_filename = os.path.splitext(tsv_filename)[0] + '.tsv'
-
-    # Join the directory and TSV filename to get the output TSV file path
     tsv_file_path = os.path.join(directory, tsv_filename)
 
-    # Convert the CSV file to TSV
-    with open(csv_file_path, 'r') as csv_file, open(tsv_file_path, 'w', newline='') as tsv_file:
-        next(csv_file)
-        for line in csv_file:
-            tsv_file.write(line.replace(',', '\t'))
+    try:
+        with open(csv_file_path, 'r') as csv_file, open(tsv_file_path, 'w', newline='') as tsv_file:
+            next(csv_file)  # Skip the header
+            for line in csv_file:
+                tsv_file.write(line.replace(',', '\t'))
+    except Exception as e:
+        process_exception(f"Error converting CSV to TSV: {e}")
 
     return tsv_file_path
 
-
-#exceptions
+# Exception handling functions
 def process_exception(msg):
+    """
+    Log an exception and exit the program
+
+    Args:
+        msg (str): The exception message to log.
+    """
     logging.exception(msg)
     print(f'EXCEPTION\t{msg}', file=sys.stderr)
     sys.exit(1)
 
 def process_error(msg):
+    """
+    Log an error and exit the program
+
+    Args:
+        msg (str): The error message to log.
+    """
     logging.error(msg)
     print(f'ERROR\t{msg}', file=sys.stderr)
     sys.exit(1)
 
 def process_warning(msg):
+    """
+    Log a warning message
+
+    Args:
+        msg (str): The warning message to log.
+    """
     logging.warning(msg)
     print(f'WARNING\t{msg}', file=sys.stderr)
 
-#file checking
+# File checking function
 def _check_file(in_file, log=False, msg='FILE'):
+    """
+    Check if a file exists and is not empty
+
+    Args:
+        in_file (str): Path to the file.
+        log (bool): Whether to log the file check.
+        msg (str): Message to log.
+    """
     try:
         if not os.path.isfile(in_file):
             raise CustomException('File is missing')
@@ -69,55 +91,67 @@ def _check_file(in_file, log=False, msg='FILE'):
     else:
         if log:
             logging.info(f'{msg}\t{in_file}')
-            
+
 def check_file(in_file):
+    """
+    Check if a file exists and is not empty, without logging
+
+    Args:
+        in_file (str): Path to the file.
+    """
     _check_file(in_file, log=False)
 
 def log_file(in_file):
+    """
+    Check if a file exists and is not empty, with logging
+
+    Args:
+        in_file (str): Path to the file.
+    """
     _check_file(in_file, log=True)
 
-
-#gunzzipping a gfa file
+# Gunzip a GFA file
 def gunzip_GFA(in_file_path, out_file_path):
     """
     Gunzip a GFA file
 
     Args:
-       in_file_path (str): path to input gzipped GFA file
-       out_file_path (str): path to output GFA file
+        in_file_path (str): Path to input gzipped GFA file
+        out_file_path (str): Path to output GFA file
 
     Returns:
-       Creates GFA file out_file_path
+        str: Path to the output GFA file
     """
     try:
-        with gzip.open(in_file_path) as in_file, open(out_file_path, 'wb') as out_file:
+        with gzip.open(in_file_path, 'rb') as in_file, open(out_file_path, 'wb') as out_file:
             shutil.copyfileobj(in_file, out_file)
-            print(f'this my gfa file gunzipped {out_file_path}')
-            return out_file_path
+        print(f'GFA file gunzipped to {out_file_path}')
+        return out_file_path
     except Exception as e:
-        process_exception(f'FASTA\tGunzipping {in_file_path} to {out_file_path}: {e}')
-
-#gunzip a fasta file
+        process_exception(f'Error gunzipping GFA file {in_file_path} to {out_file_path}: {e}')
+# Gunzip a FASTA file
 def gunzip_FASTA(in_file_path, out_file_path):
     """
     Gunzip a FASTA file
 
     Args:
-       in_file_path (str): path to input gzipped FASTA file
-       out_file_path (str): path to output FASTA file
+        in_file_path (str): Path to input gzipped FASTA file
+        out_file_path (str): Path to output FASTA file
 
     Returns:
-       Creates FASTA file out_file_path
+        str: Path to the output FASTA file
     """
-    records = []
-    with gzip.open(in_file_path, 'rt') as handle:
-        for record in SeqIO.parse(handle, 'fasta'):
-            records.append(record)
+    try:
+        records = []
+        with gzip.open(in_file_path, 'rt') as handle:
+            for record in SeqIO.parse(handle, 'fasta'):
+                records.append(record)
         with open(out_file_path, 'w') as out_file:
             SeqIO.write(records, out_file, 'fasta')
-
-
-#verify the input FASTA/GFA
+        return out_file_path
+    except Exception as e:
+        process_exception(f'Error gunzipping FASTA file {in_file_path} to {out_file_path}: {e}')
+# Verify input files
 def verify_input_file(gfa_path, fasta_path):
     """
     Verify that at least one input file is provided and is not empty
@@ -151,12 +185,10 @@ def verify_input_file(gfa_path, fasta_path):
         process_error("All provided input files are empty. At least one file must be non-empty")
 
     logging.info(f"Valid input files: {', '.join(non_empty_files)}")
-
-
+# Create a directory
 def create_directory(output_path, prefix):
     """
-    Create a new path using the current working directory and a prefix if the output_path is None.
-    Ensure the directory exists.
+    Create a new path using the current working directory and a prefix if the output_path is None. Ensure the directory exists.
 
     Args:
         output_path (str): The original output path. If None, a new path will be generated.
@@ -168,52 +200,74 @@ def create_directory(output_path, prefix):
     if output_path is None:
         current_dir = "C:/Users/user/Desktop/Bioinformatic_pipeline/out"
         output_path = os.path.join(current_dir, f"{prefix}_output")
-    
     try:
         os.makedirs(output_path, exist_ok=True)
     except OSError as e:
         logging.error(f"Error creating directory '{output_path}': {e}")
         raise
-
     return output_path
-
-
+# Check GFA input
 def check_gfa_input(class_input_format, bin_input_format, gfa_path):
     """
-    Check if one of the input files is a GFA file and gfa_path is None.
-    Raise an error if this condition is met.
-    
-    :param input_files: List of input file paths
-    :param gfa_path: Path to the GFA file (can be None)
+    Check if one of the input files is a GFA file and gfa_path is None. Raise an error if this condition is met.
+
+    Args:
+        class_input_format (str): Class input format
+        bin_input_format (str): Binary input format
+        gfa_path (str): Path to the GFA file (can be None)
     """
-
-
     if (class_input_format.lower() == 'gfa' or bin_input_format.lower() == 'gfa') and gfa_path is None:
-        error_message = "one of the tools need a gfa file, but gfa_file is None. Please provide a valid gfa_path"
+        error_message = "One of the tools needs a GFA file, but gfa_file is None. Please provide a valid gfa_path"
         process_error(error_message)
-
-
+# File existence check
 def process_file(msg):
+    """
+    Process a file error message
+
+    Args:
+        msg (str): The error message to process.
+    """
     process_error(f"FileNotFoundError: The file {file} was not found.")
     print(f'FILENOTFOUND\t{msg}', file=sys.stderr)
     sys.exit(1)
 
 def exist_file(file):
+    """
+    Check if a file exists
+
+    Args:
+        file (str): Path to the file.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+    """
     if not os.path.isfile(file):
         raise FileNotFoundError(f"YAML file '{file}' does not exist.")
 
 def verif_file(file, format):
+    """
+    Verify the file format
+
+    Args:
+        file (str): Path to the file.
+        format (str): Expected file format.
+
+    Raises:
+        ValueError: If the file format is incorrect.
+    """
     if not file.endswith(format):
-        raise ValueError(f"Invalid user file '{file}'. Expected a {format} file.")
+        raise ValueError(f"Invalid user file '{file}'. Expected a {format} file.")       
 
-
+# Setup logging
 def setup_logging(log_dir):
-    """ Setup logging"""
+    """
+    Setup logging
 
-    # Ensure the directory for the log file exists
+    Args:
+        log_dir (str): Directory for log files
+    """
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir)
-
     logging.basicConfig(
         filename='plaspipes.log',
         level=logging.INFO,
@@ -222,42 +276,90 @@ def setup_logging(log_dir):
     )
 
 def log_file_creation(file_type, file_path):
-    """ logger"""
+    """
+    Log file creation
+
+    Args:
+        file_type (str): Type of the file
+        file_path (str): Path to the file
+    """
     log_entry = f"{file_type}: {file_path}"
-    
-    # Log the entry using logging.info
     logging.info(log_entry)
 
-
+# Extract output directory and prefix from method_config
 def get_output_directory(method_config):
-    """Extract output directory and prefix from method_config"""
+    """
+    Extract output directory and prefix from method_config
+
+    Args:
+        method_config (dict): Configuration dictionary
+
+    Returns:
+        tuple: Output directory and prefix
+    """
     outdir_pipeline = method_config['outdir_pipeline']
     prefix = method_config['prefix']
     return create_directory(outdir_pipeline, prefix), prefix
 
+# Generate paths for gunzipped files
 def get_gunzipped_paths(outdir_pipeline, prefix):
-    """generate paths for gunzipped files"""
+    """
+    Generate paths for gunzipped files
+
+    Args:
+        outdir_pipeline (str): Output directory for the pipeline
+        prefix (str): Prefix for the files
+
+    Returns:
+        tuple: Paths for gunzipped GFA and FASTA files
+    """
     return (
         os.path.join(outdir_pipeline, f"{prefix}_gunzipped_gfa.gfa"),
         os.path.join(outdir_pipeline, f"{prefix}_gunzipped_fasta.fasta")
     )
 
+# Extract input file paths from method_config
 def get_input_paths(method_config):
-    """Extract input file paths from method_config"""
+    """
+    Extract input file paths from method_config
+
+    Args:
+        method_config (dict): Configuration dictionary
+
+    Returns:
+        tuple: Paths to input GFA and FASTA files
+    """
     return (
         method_config['input']['path_to_input_gfa'],
         method_config['input']['path_to_input_fasta']
     )
 
+# Log input file paths
 def log_input_files(gfa_path, fasta_path):
-    """log input file paths"""
+    """
+    Log input file paths
+
+    Args:
+        gfa_path (str): Path to the GFA file
+        fasta_path (str): Path to the FASTA file
+    """
     logging.info(f"GFA file: {gfa_path}")
     logging.info(f"FASTA file: {fasta_path}")
     log_file_creation('gfa_path', gfa_path)
     log_file_creation('fasta_path', fasta_path)
 
+# Process and verify GFA file as pipeline input, unzipping if necessary
 def process_gfa_file(gfa_path, gun_gfa_path):
-    """Process and verify GFA file as pipeline input, unzipping if necessary"""
+    """
+    Process and verify GFA file as pipeline input, unzipping if necessary
+
+    Args:
+        gfa_path (str): Path to the GFA file
+        gun_gfa_path (str): Path to the gunzipped GFA file
+
+    Returns:
+        str: Path to the processed GFA file
+    """
     if not gfa_path:
         return None
     if not os.path.exists(gfa_path):
@@ -271,8 +373,18 @@ def process_gfa_file(gfa_path, gun_gfa_path):
         raise ValueError(f"Invalid GFA file format: {gfa_path}")
     return gfa_path
 
+# Process and verify the FASTA file, unzipping if necessary
 def process_fasta_file(fasta_path, gun_fasta_path):
-    """Process and verify the FASTA file, unzipping if it is necessary"""
+    """
+    Process and verify the FASTA file, unzipping if necessary
+
+    Args:
+        fasta_path (str): Path to the FASTA file
+        gun_fasta_path (str): Path to the gunzipped FASTA file
+
+    Returns:
+        str: Path to the processed FASTA file
+    """
     if not fasta_path:
         return None
     if not os.path.exists(fasta_path):
@@ -286,65 +398,103 @@ def process_fasta_file(fasta_path, gun_fasta_path):
         raise ValueError(f"Invalid FASTA file format: {fasta_path}")
     return fasta_path
 
-
-        
+# Clean files
 def clean_files(files2clean):
+    """
+    Remove specified files
+
+    Args:
+        files2clean (list): List of file paths to remove
+    """
     for in_file in files2clean:
         if os.path.isfile(in_file):
             os.remove(in_file)
 
-
+# Create directories
 def create_director(in_dir_list):
+    """
+    Create directories if they do not exist
+
+    Args:
+        in_dir_list (list): List of directory paths to create
+    """
     for in_dir in in_dir_list:
         if not os.path.exists(in_dir):
             os.makedirs(in_dir)
 
-
+# Process attribute
 def process_attribute(attr):
-    """ return a default str"""
+    """
+    Return a default string if the attribute is None
+
+    Args:
+        attr: Attribute value
+
+    Returns:
+        str: Processed attribute
+    """
     return "" if attr is None else attr
 
-
+# Process attribute as float
 def process_attribute_float(attr):
-    """ return a default float"""
+    """
+    Return a default float if the attribute is None
+
+    Args:
+        attr: Attribute value
+
+    Returns:
+        float: Processed attribute
+    """
     return 0 if attr is None else attr
 
+# Process arguments
 def process_arguments(arg, default_arg):
-    """ assign default parameters """
+    """
+    Assign default parameters
 
+    Args:
+        arg (list): List of arguments
+        default_arg (list): List of default arguments
+
+    Returns:
+        list: Processed arguments
+    """
     arg = arg + [None] * (len(default_arg) - len(arg))
-    
-    # affect default values
     processed_arg = [default if a is None else a for a, default in zip(arg, default_arg)]
-    
     return processed_arg
 
-
-def absolute_path ():
-    """ 
+# Get absolute path of the project
+def absolute_path():
+    """
     Get the absolute path of the project
-    """ 
 
+    Returns:
+        str: Absolute path of the project
+    """
     dirname = os.path.dirname(__file__)
     target_dir = "Bioinformatic_pipeline"
-
     path_parts = dirname.split(os.sep)
-
-    # index of bioinformatic_pipeline 
     try:
         target_index = path_parts.index(target_dir)
     except ValueError:
-        # if target directory is not found, return the original path
         return dirname
-
     base_path = os.sep.join(path_parts[:target_index+1])
-
     return base_path
 
+# Run external command
 def _run_cmd(cmd, output, num_attempts, exit_on_error):
-    """ 
-    Run external command, trying at most num_attempts times  
-    If output is None, write output in logging file
+    """
+    Run external command, trying at most num_attempts times
+
+    Args:
+        cmd (list): Command to run
+        output (str): Output file path
+        num_attempts (int): Number of attempts
+        exit_on_error (bool): Exit on error flag
+
+    Returns:
+        int: Process return code
     """
     cmd_str = ' '.join(cmd)
     logging.info(f'COMMAND\t{cmd_str}')
@@ -365,19 +515,29 @@ def _run_cmd(cmd, output, num_attempts, exit_on_error):
             if output is None:
                 logging.info(f'STDOUT:\n{process.stdout}')
             else:
-                with open(output, 'w') as out_file:                    
+                with open(output, 'w') as out_file:
                     out_file.write(process.stdout)
             if len(process.stderr) > 0:
                 logging.warning(f'STDERR:\n{process.stderr}')
             process_returncode = process.returncode
         attempt += 1
     return process_returncode
-    
+
 def run_cmd(cmd, num_attempts=5, exit_on_error=True):
-    """ Run external command, trying at most num_attempts=5 times  """
+    """
+    Run external command, trying at most num_attempts=5 times
+
+    Args:
+        cmd (list): Command to run
+        num_attempts (int): Number of attempts
+        exit_on_error (bool): Exit on error flag
+
+    Returns:
+        int: Process return code
+    """
     return _run_cmd(cmd, None, num_attempts, exit_on_error)
 
-
+# Convert GFA to FASTA or return the path to the appropriate input file
 def conversion_gfa_fasta(gfa_file, fasta_file, gzipped_gfa = False, gzipped_fasta = False):
     """
     Convert GFA to FASTA or return the path to the appropriate input file.
@@ -390,30 +550,25 @@ def conversion_gfa_fasta(gfa_file, fasta_file, gzipped_gfa = False, gzipped_fast
         str: Path to the input file (converted if necessary).
     """
     try:
-
         sep = ' '
-
-
         write_GFA_to_FASTA(gfa_file, fasta_file, gzipped_gfa, gzipped_fasta, sep=sep)
         log_file_creation('gfa converted file', fasta_file)
         return fasta_file
 
     except Exception as e:
         process_exception(f"Error in conversion the file: {str(e)}")
-    
-
-def import_file(source_file, destination_folder):
+#copy file to folder for rfplasmid
+def copy_file(source_file, destination_folder):
     """ 
     copy file into a specific destination
     """ 
 
     try:
         shutil.copy(source_file, destination_folder)
-        print(f"File '{source_file}' imported to '{destination_folder}' successfully.")
+        print(f"File '{source_file}' copied to '{destination_folder}' successfully.")
     except IOError as error:
-        print(f"Error importing file: {error}")
-
-
+        print(f"Error to copy file: {error}")
+#filter the short contigs for fasta file
 def fasta_filter_length(input_file, output_file, min_leng):
 
 
@@ -447,7 +602,7 @@ def fasta_filter_length(input_file, output_file, min_leng):
             out_file.write(f"{current_header}\n{current_sequence}\n")
 
     return output_file
-
+#conversion from csv to tab
 def csv_to_tab(input_csv):
     """
     Convert a CSV file to a TAB file
@@ -487,8 +642,7 @@ def csv_to_tab(input_csv):
             out_file.write(f"{chromosome_score:.6f}\t{plasmid_score:.6f}\t{prediction}\t{contig_name}\t{length}\n")
 
     return output_tab
-
-
+#add eliminated short contigs
 def update_contig_names(input_tab, gfa_file):
     """
     Updates the contig names in the input tab file based on the information provided in the GFA file.
@@ -540,8 +694,7 @@ def update_contig_names(input_tab, gfa_file):
             outfile.write(f"{row['Prob_Chromosome']}\t{row['Prob_Plasmid']}\t{row['Prediction']}\t{new_contig_name}\t{row['Contig_length']}\n")
 
     return output_tab
-
-
+#gzip files
 def gzip_file(file_path, binning_outdir = ""):
     """
     gzip the given file and creates a new file with '.gz' extension

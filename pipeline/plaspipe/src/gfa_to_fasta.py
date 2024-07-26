@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+# Modified from the code for the conversion of gfa to fasta from 'plasbin-flow'.
+# https://github.com/cchauve/PlasBin-flow
+# Manipulating FASTA and GFA files
+
 import os
 import subprocess
 from Bio import SeqIO

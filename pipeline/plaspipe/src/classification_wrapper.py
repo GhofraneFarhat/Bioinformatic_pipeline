@@ -1,3 +1,23 @@
+#!/usr/bin/env python3
+"""
+This module contains the ClassificationWrapper class, which is responsible for managing the classification process
+in a bioinformatics pipeline. It handles input formatting, running classification tools, and converting
+output to the required format.
+
+Classes:
+    ClassificationWrapper: Manages the binning process, including input conversion, tool execution, and output formatting.
+
+Dependencies:
+    - os
+    - logging
+    - subprocess
+    - shlex
+    - Custom utility functions (e.g., process_exception, check_file, log_file_creation, get_command, etc.)
+
+Usage:
+    wrapper = ClassificationWrapper(classification_folder, prefix, classification_config, fasta_path, gfa_path)
+    csv_output = wrapper.get_csv_file_from_classification() : standart format of the pipeline
+"""
 import os
 import subprocess
 from Bio import SeqIO
